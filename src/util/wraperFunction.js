@@ -1,4 +1,4 @@
-import { ErrorResponse } from "../entity/ErrorResponse.js";
+import { ErrorResponse } from "./ErrorResponse.js";
 
 export const funcWrapper = (func) => async (req, res, next)=>{
     try{

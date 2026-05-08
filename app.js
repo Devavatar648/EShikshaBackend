@@ -5,6 +5,7 @@ import userRouter from './src/routes/user.routes.js';
 import adminRouter from './src/routes/admin.routes.js';
 import { errorHandler } from './src/middleware/errorHandler.middleware.js';
 import { adminRequestHandler } from './src/middleware/adminRequestHandler.middleware.js';
+import  assignmentRoutes  from './src/routes/assignment.routes.js'
 env.config();
 
 const app = express();
@@ -19,6 +20,8 @@ app.use( cors( { origin: process.env.ORIGIN_URL } ) );
 app.use("/user", userRouter);
 // Admin endpoints
 app.use("/admin", adminRequestHandler, adminRouter);
+
+app.use('/api/instructor/assignment',assignmentRoutes);
 
 
 // ErrorHandler Middleware
