@@ -36,4 +36,4 @@ userSchema.methods.isCorrectPassword = function (givenPassword){
     return false;
 }
 
-export const UserModel = model('users', userSchema);
+export default model('users', userSchema);

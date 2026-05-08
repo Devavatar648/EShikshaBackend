@@ -1,5 +1,5 @@
 import { Response } from "../entity/Response.js";
-import { UserModel } from "../models/user.model.js";
+import UserModel from "../models/user.model.js";
 import { funcWrapper } from "../util/wraperFunction.js";
 
 export const getAllUser = funcWrapper(async (req, res)=>{
