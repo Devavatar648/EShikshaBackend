@@ -23,15 +23,18 @@ app.use( cors( { origin: process.env.ORIGIN_URL } ) );
 // public api endpoints
 // user endpoints
 app.use("/user", userRouter);
+// course endpoints
 app.use("/course", courseRouter);
 
 
 // private api endpoints
 // Admin endpoints
 app.use("/admin", adminRequestHandler, adminRouter);
-// app.use('/instructor',assignmentRoutes);
+// Instructor
+app.use("/instructor", instructorRequestHandler, instructorRouter);
+
+
 app.use('/file',fileRouter);
-app.use("/instructor",instructorRequestHandler, instructorRouter);
 
 
 // ErrorHandler Middleware

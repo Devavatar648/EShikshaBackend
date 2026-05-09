@@ -1,8 +1,6 @@
-import AssignmentModel from '../models/assignment.model.js';
 import FileModel from '../models/file.model.js';
 import crypto from 'crypto';
 import { funcWrapper } from '../util/wraperFunction.js';
-import { Response } from '../util/Response.js';
 
 
 const getHash = (buffer) => {

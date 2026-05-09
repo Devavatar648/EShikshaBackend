@@ -10,7 +10,7 @@ const getHash = (buffer) => {
     return crypto.createHash('sha256').update(buffer).digest('hex');
 }
 
-
+// For Instructor 
 export const addAssignment = funcWrapper(async (req, res) => {
     // Validation for Multer: check if file exists
     if (!req.file) {
@@ -41,18 +41,6 @@ export const addAssignment = funcWrapper(async (req, res) => {
     });
 })
 
-// export const getAssignment = funcWrapper(async (req, res) => {
-//     // We exclude 'fileData' so we don't send heavy buffers in a list view
-//     const assignments = await AssignmentModel.find({}).select('-fileData');
-
-//     if (!assignments || assignments.length === 0) {
-//         return res.status(200).json({ message: "No assignments found", data: [] });
-//     }
-
-//     res.status(200).json(assignments);
-// })
-
-
 export const deleteAssignment = funcWrapper(async (req, res) => {
     const id = req.params.id;
     const deleted = await AssignmentModel.findByIdAndDelete({ _id: id });
@@ -64,31 +52,6 @@ export const deleteAssignment = funcWrapper(async (req, res) => {
         return res.status(404).json({ message: "assignment not found" });
     }
     res.status(200).json({ message: 'assignment deleted' });
-})
-
-
-export const searchAssignment = funcWrapper(async (req, res) => {
-
-
-    const { instructorId, courseId } = req.query;
-
-    const query = {};
-    if (instructorId) {
-        query['InstructorId'] = instructorId;
-    }
-
-    if (courseId) {
-        query['courseId'] = courseId;
-    }
-
-    const assignment = await AssignmentModel.find(query);
-
-    if (!assignment) {
-        return res.status(404).json({ message: "No assignment found" });
-    }
-
-    res.status(200).json(assignment);
-
 })
 
 
@@ -131,3 +94,30 @@ export const updateAssignment = funcWrapper(async (req, res) => {
 
   res.status(200).json(new Response(null, "Updated"));
 });
+
+
+
+
+// For all registered users
+export const searchAssignment = funcWrapper(async (req, res) => {
+    const { instructorId, courseId } = req.query;
+
+    const query = {};
+    if (instructorId) {
+        query['InstructorId'] = instructorId;
+    }
+
+    if (courseId) {
+        query['courseId'] = courseId;
+    }
+
+    const assignment = await AssignmentModel.find(query);
+
+    if (!assignment) {
+        return res.status(404).json({ message: "No assignment found" });
+    }
+
+    res.status(200).json(assignment);
+
+})
+
