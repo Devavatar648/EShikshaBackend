@@ -7,7 +7,9 @@ import fileRouter from './src/routes/file.routes.js';
 import { errorHandler } from './src/middleware/errorHandler.middleware.js';
 import { adminRequestHandler } from './src/middleware/adminRequestHandler.middleware.js';
 import  assignmentRoutes  from './src/routes/assignment.routes.js'
-
+import courseRouter from './src/routes/course.routes.js';
+import instructorRouter from './src/routes/instructor.routes.js';
+import { instructorRequestHandler } from './src/middleware/instsructorRequestHandler.middleware.js';
 
 env.config();
 
@@ -18,14 +20,18 @@ app.use( express.json() );
 app.use( express.urlencoded( { extended:true } ) );
 app.use( cors( { origin: process.env.ORIGIN_URL } ) );
 
-// api endpoints
+// public api endpoints
 // user endpoints
 app.use("/user", userRouter);
+app.use("/course", courseRouter);
+
+
+// private api endpoints
 // Admin endpoints
 app.use("/admin", adminRequestHandler, adminRouter);
-
-app.use('/instructor',assignmentRoutes);
+// app.use('/instructor',assignmentRoutes);
 app.use('/file',fileRouter);
+app.use("/instructor",instructorRequestHandler, instructorRouter);
 
 
 // ErrorHandler Middleware
