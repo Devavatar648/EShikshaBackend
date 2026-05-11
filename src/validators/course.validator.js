@@ -1,6 +1,6 @@
 import  {body} from 'express-validator';
 
-const validSchema=[
+const validSchema = [
     body('title')
     .notEmpty().withMessage("Name is required")
     .isLength({max:30}).withMessage("Maximum length is 30"),
@@ -14,7 +14,12 @@ const validSchema=[
     .isLength({min:100}).withMessage("At least 100 characters"),
 
     body('instructor')
-    .notEmpty().withMessage("Instructor is needed")
+    .custom((_, {req})=>{
+        if(!req.user.id){
+            throw new Error("Instructor Authentication required");
+        }
+        return true;
+    })
 
 ]
 

@@ -17,16 +17,16 @@ export const assignmentValidators = [
         .isInt({ min: 1 }).withMessage('Total marks must be a positive integer')
         .notEmpty().withMessage('total Marks needed'),
 
-    body('courseId')
-        .isMongoId().withMessage('CourseId must be a valid Mongo ObjectId')
-        .notEmpty().withMessage('Course Id needed'),
+    body('instructor')
+    .custom((_, {req})=>{
+        if(!req.user.id){
+            throw new Error("Instructor Authentication required");
+        }
+        return true;
+    }),
 
-    body('InstructorId')
-        .isMongoId().withMessage('InstructorId must be a valid Mongo ObjectId')
-        .notEmpty().withMessage('Instructor Id needed.'),
-
-    body('fileId')
-        .optional()
+    body('file')
+        .notEmpty().withMessage("File is rquired")
         .isMongoId().withMessage('FileId must be a valid Mongo ObjectId if provided')
 
 ]

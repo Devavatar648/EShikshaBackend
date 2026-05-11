@@ -3,66 +3,85 @@ import Course from "../models/course.model.js";
 import validSchema from 'express-validator';
 import { Types } from "mongoose";
 import courseModel from "../models/course.model.js";
+import { AppResponse } from "../util/AppResponse.js";
+import { ErrorResponse } from "../util/ErrorResponse.js";
+import { getCourseAssignments } from "./assignment.controller.js";
 
 
 
 // public
-export const getCourses = funcWrapper(async (req, res)=>{
-    const instId=req.query.instructorId;
-    const cName=req.query.title;
+export const getCourses = funcWrapper(async (req, res) => {
+    const { instId, cName } = req.query;
+    // const instId = req.query.instructorId;
+    // const cName = req.query.title;
     let queryObj = {};
-    if(instId){
-        queryObj['instructorId']=instId;
+    if (instId) {
+        queryObj['instructor'] = instId;
     }
-    if(cName){
-        queryObj['title']=cName;
+    if (cName) {
+        queryObj['title'] = cName;
     }
-    const course=await courseModel.find(queryObj);
-    res.status(201).json({message:"Course found",course});
-}) 
+    const course = await courseModel.find(queryObj).populate("instructor", "name email");
+    if (!course) {
+        throw new ErrorResponse(404, "No Course Found");
+    }
+    const assignments = await getCourseAssignments(course._id);
+    const response = {...course, assignments}
+    res.status(200).json(new AppResponse(response, "Course found"));
+})
+
+export const getCourseById = funcWrapper(async (req, res) => {
+    const { courseId } = req.query;
+    const course = await courseModel.findById(courseId).populate("instructor", "name email");
+    if (!course) {
+        throw new ErrorResponse(404, "No Course Found");
+    }
+    const assignments = await getCourseAssignments(course._id);
+    const response = {course, assignments}
+    res.status(200).json(new AppResponse(response, "Course found"));
+})
 
 
 // Protected
-export const createCourse=funcWrapper(async(req, res)=>{
-    const valid=validSchema.validationResult(req);
-    if(!valid.isEmpty()){
+export const createCourse = funcWrapper(async (req, res) => {
+    const valid = validSchema.validationResult( req );
+    if (!valid.isEmpty()) {
         throw valid.array();
     }
 
-    let course= new Course({
+    let course = new Course({
         ...req.body,
-        instructorId: new Types.ObjectId(req.body.instructorId)
+        instructor: new Types.ObjectId(req.user.id)
     });
-    course=await course.save();
-    res.status(201).json({message:"Course added successfully"});
+    course = await course.save();
+    res.status(201).json(new AppResponse(course, "Course created successfully."));
 
 })
 
 
-export const updateCourse=funcWrapper(async(req, res)=>{
-    const id= req.params.id;
-    const { instructor, ...updatedData } = req.body;
-    const course=await courseModel.findOneAndUpdate({_id:id, instructor},{$set:updatedData}, {
-        runValidators:true,
-        new:true,
-        context:'query'
-    });
-
-    if(!course){
-        throw "This course is not exists or created by you";
-    }
-
-    res.status(200).json(course);      
-})
-
-
-export const deleteCourse=funcWrapper(async(req, res)=>{
+export const updateCourse = funcWrapper(async (req, res) => {
     const id = req.params.id;
-    const course=await courseModel.deleteOne({_id:id, instructor:req.body.instructor});
-    console.log(course);
-    if(course.deletedCount===0){
+    const course = await courseModel.findOneAndUpdate({ _id: id, instructor: req.user.id }, { $set: req.body }, {
+        runValidators: true,
+        new: true,
+        context: 'query'
+    });
+
+    if (!course) {
         throw "This course is not exists or created by you";
     }
-    res.status(200).json(course);    
+
+    res.status(200).json(course);
+})
+
+
+export const deleteCourse = funcWrapper(async (req, res) => {
+    const id = req.params.id;
+    const course = await courseModel.deleteOne({ _id: id, instructor: req.user.id });
+    console.log(course);
+    if (course.deletedCount === 0) {
+        throw "This course is not exists or created by you";
+    }
+    res.status(200).json(course);
 })
 

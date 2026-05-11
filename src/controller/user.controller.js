@@ -1,6 +1,6 @@
 import { validationResult } from "express-validator";
 import UserModel from "../models/user.model.js";
-import { Response } from "../util/Response.js";
+import { AppResponse } from "../util/AppResponse.js";
 import jwt from 'jsonwebtoken';
 import env from 'dotenv';
 import { funcWrapper } from "../util/wraperFunction.js";
@@ -14,7 +14,7 @@ export const registerUser = funcWrapper(async (req, res)=>{
     }
     let user = new UserModel(req.body);
     user = await user.save();
-    res.status(201).json(new Response(user,"User Created"));
+    res.status(201).json(new AppResponse(user,"User Created"));
 })
 
 // Authenticate User
@@ -27,7 +27,7 @@ export const authenticateUser = funcWrapper(async (req, res)=>{
         const userData = user.toJSON();
         delete(userData.password);
         const token = jwt.sign(userData, process.env.SECRET_KEY, {expiresIn:'2d'});
-        res.status(200).json(new Response({token},"User LoggedIn"));
+        res.status(200).json(new AppResponse({token},"User LoggedIn"));
     }else{
         throw "Incorrect Password";
     }

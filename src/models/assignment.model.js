@@ -16,16 +16,17 @@ const AssignmentSchema=new mongoose.Schema({
         required: true,
         min: 1
     },
-    courseId: {
+    course: {
         type: mongoose.Types.ObjectId, 
         required: true
     },
-    InstructorId: {
+    instructor: {
         type: mongoose.Types.ObjectId, 
         required: true
     },
-    fileId:{
+    file:{
         type:mongoose.Types.ObjectId,
+        required: true
     }
 },{
     timestamps:true

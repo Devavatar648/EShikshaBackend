@@ -1,15 +1,15 @@
 import express from 'express';
 import env from 'dotenv';
 import cors from 'cors';
-import userRouter from './src/routes/user.routes.js';
+import authRouter from './src/routes/auth.routes.js';
 import adminRouter from './src/routes/admin.routes.js';
-import fileRouter from './src/routes/file.routes.js';
+import publicRouter from "./src/routes/public.routes.js"
+import studentRouter from "./src/routes/student.routes.js";
 import { errorHandler } from './src/middleware/errorHandler.middleware.js';
 import { adminRequestHandler } from './src/middleware/adminRequestHandler.middleware.js';
-import  assignmentRoutes  from './src/routes/assignment.routes.js'
-import courseRouter from './src/routes/course.routes.js';
 import instructorRouter from './src/routes/instructor.routes.js';
 import { instructorRequestHandler } from './src/middleware/instsructorRequestHandler.middleware.js';
+import { studnetRequestHandler } from './src/middleware/studetnRequestHandler.middleware.js';
 
 env.config();
 
@@ -21,10 +21,10 @@ app.use( express.urlencoded( { extended:true } ) );
 app.use( cors( { origin: process.env.ORIGIN_URL } ) );
 
 // public api endpoints
+app.use("/", publicRouter)
 // user endpoints
-app.use("/user", userRouter);
-// course endpoints
-app.use("/course", courseRouter);
+app.use("/auth", authRouter);
+
 
 
 // private api endpoints
@@ -32,10 +32,8 @@ app.use("/course", courseRouter);
 app.use("/admin", adminRequestHandler, adminRouter);
 // Instructor
 app.use("/instructor", instructorRequestHandler, instructorRouter);
-
-
-app.use('/file',fileRouter);
-
+// Student
+app.use("/student", studnetRequestHandler, studentRouter);
 
 // ErrorHandler Middleware
 app.use( errorHandler );
