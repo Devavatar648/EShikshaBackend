@@ -1,4 +1,4 @@
-import { Response } from "../entity/Response.js";
+import { Response } from "../util/Response.js";
 import UserModel from "../models/user.model.js";
 import { funcWrapper } from "../util/wraperFunction.js";
 

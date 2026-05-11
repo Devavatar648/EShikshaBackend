@@ -1,6 +1,6 @@
 import { validationResult } from "express-validator";
 import UserModel from "../models/user.model.js";
-import { Response } from "../entity/Response.js";
+import { Response } from "../util/Response.js";
 import jwt from 'jsonwebtoken';
 import env from 'dotenv';
 import { funcWrapper } from "../util/wraperFunction.js";

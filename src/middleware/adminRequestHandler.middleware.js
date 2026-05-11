@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { ErrorResponse } from '../entity/ErrorResponse.js';
+import { ErrorResponse } from '../util/ErrorResponse.js';
 
 export const adminRequestHandler = (req, res, next)=>{
     try{

@@ -1,12 +1,9 @@
-
 import { funcWrapper } from "../util/wraperFunction.js";
 import Course from "../models/course.model.js";
 import validSchema from 'express-validator';
-
-
 import { Types } from "mongoose";
 import courseModel from "../models/course.model.js";
-import userModel from "../models/user.model.js";
+
 
 
 // public

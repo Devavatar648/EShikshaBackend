@@ -10,13 +10,11 @@ export const instructorRequestHandler = (req, res, next)=>{
         const result = jwt.verify(token, process.env.SECRET_KEY);
         if(result.role==="INSTRUCTOR"){
             req.body['instructor']=result._id;
-            console.log("Inside if");
             next();
         }else{
             throw "This url is restricted for you.";
         }
     }catch(err){
-        console.log(err);
         next(new ErrorResponse(401, err));
     }
 }
