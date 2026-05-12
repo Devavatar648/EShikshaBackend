@@ -11,17 +11,15 @@ import { getCourseAssignments } from "./assignment.controller.js";
 
 // public
 export const getCourses = funcWrapper(async (req, res) => {
-    const { instId, cName } = req.query;
-    // const instId = req.query.instructorId;
-    // const cName = req.query.title;
+    const { instId, title } = req.query;
     let queryObj = {};
     if (instId) {
         queryObj['instructor'] = instId;
     }
-    if (cName) {
-        queryObj['title'] = cName;
+    if (title) {
+        queryObj['title'] = { $regex:title, $options:'i' };
     }
-    const courses = await courseModel.find(queryObj).populate("instructor", "name email");
+    const courses = await courseModel.find(queryObj).populate("instructor", "name");
     if (!courses) {
         throw new ErrorResponse(404, "No Course Found");
     }
