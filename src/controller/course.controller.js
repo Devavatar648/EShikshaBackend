@@ -21,17 +21,15 @@ export const getCourses = funcWrapper(async (req, res) => {
     if (cName) {
         queryObj['title'] = cName;
     }
-    const course = await courseModel.find(queryObj).populate("instructor", "name email");
-    if (!course) {
+    const courses = await courseModel.find(queryObj).populate("instructor", "name email");
+    if (!courses) {
         throw new ErrorResponse(404, "No Course Found");
     }
-    const assignments = await getCourseAssignments(course._id);
-    const response = {...course, assignments}
-    res.status(200).json(new AppResponse(response, "Course found"));
+    res.status(200).json(new AppResponse(courses, "Course found"));
 })
 
 export const getCourseById = funcWrapper(async (req, res) => {
-    const { courseId } = req.query;
+    const { courseId } = req.params;
     const course = await courseModel.findById(courseId).populate("instructor", "name email");
     if (!course) {
         throw new ErrorResponse(404, "No Course Found");

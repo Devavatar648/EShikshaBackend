@@ -21,7 +21,6 @@ export const addAssignment = funcWrapper(async (req, res) => {
     }
 
     const fileId = await uploadAssignmentFile( req );
-    console.log(fileId);
     const assignment = await AssignmentModel.create({
         ...req.body,
         course: courseId,
@@ -94,7 +93,7 @@ export const searchAssignment = funcWrapper(async (req, res) => {
 
 export const getCourseAssignments = async (courseId)=>{
     try{
-        return await AssignmentModel.find({course:courseId});;
+        return await AssignmentModel.find({course:courseId}).select("-_id title dueDate totalMarks file");
     }catch(err){
         console.log(err);
     }

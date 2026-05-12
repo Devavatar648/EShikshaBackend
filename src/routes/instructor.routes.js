@@ -15,7 +15,7 @@ const uploading = multer({
 
 router.route("/course/:courseId/assignment")
     .post(assignmentValidators, uploading.single('myFile'), addAssignment)
-    .get(searchAssignment);
+    .get( searchAssignment );
 
 router.route("/course/:courseId/assignment/:id")
     .delete( deleteAssignment )

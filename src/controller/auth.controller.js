@@ -4,6 +4,7 @@ import { AppResponse } from "../util/AppResponse.js";
 import jwt from 'jsonwebtoken';
 import env from 'dotenv';
 import { funcWrapper } from "../util/wraperFunction.js";
+import { ErrorResponse } from "../util/ErrorResponse.js";
 env.config();
 
 // Register User
@@ -12,8 +13,7 @@ export const registerUser = funcWrapper(async (req, res)=>{
     if(!errors.isEmpty()){
         throw errors.array();
     }
-    let user = new UserModel(req.body);
-    user = await user.save();
+    const user = await new UserModel(req.body).save();
     res.status(201).json(new AppResponse(user,"User Created"));
 })
 
