@@ -60,5 +60,6 @@ courseSchema.pre("save",async function(){
     }
 })
 
+courseSchema.index({title:1});
 
 export default mongoose.model("course", courseSchema);

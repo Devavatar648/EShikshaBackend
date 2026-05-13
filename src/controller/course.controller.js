@@ -12,14 +12,12 @@ import { getCourseAssignments } from "./assignment.controller.js";
 // public
 export const getCourses = funcWrapper(async (req, res) => {
     const { instId, cName } = req.query;
-    // const instId = req.query.instructorId;
-    // const cName = req.query.title;
     let queryObj = {};
     if (instId) {
         queryObj['instructor'] = instId;
     }
     if (cName) {
-        queryObj['title'] = cName;
+        queryObj['title'] = {$regex:cName, $options:'i'};
     }
     const courses = await courseModel.find(queryObj).populate("instructor", "name email");
     if (!courses) {
