@@ -28,10 +28,6 @@ const courseSchema=new mongoose.Schema({
             Message:String,
         }
     ],
-    enrolments:{
-        type:Number,
-        default:0
-    },
     description:{
         type:String,
         required:true
@@ -60,5 +56,6 @@ courseSchema.pre("save",async function(){
     }
 })
 
+courseSchema.index({title:1});
 
-export default mongoose.model("course", courseSchema);
+export default mongoose.model("courses", courseSchema);
