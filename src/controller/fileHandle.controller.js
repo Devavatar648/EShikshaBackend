@@ -2,6 +2,7 @@ import FileModel from '../models/file.model.js';
 import crypto from 'crypto';
 import { funcWrapper } from '../util/wraperFunction.js';
 import { ErrorResponse } from '../util/ErrorResponse.js';
+import { updatedCourseInfo } from './enrollment.controller.js';
 
 
 const getHash = (buffer) => {
@@ -9,12 +10,17 @@ const getHash = (buffer) => {
 }
 
 export const downloadAssignmentFile = funcWrapper( async (req, res) => {
+    
     const id = req.params.id;
     const file = await FileModel.findOne({ _id: id });
 
     if (!file) {
         return new ErrorResponse(404, "File not found");
     }
+
+    const studentId=req.user.id;
+    const courseId=req.params.courseId;
+    updatedCourseInfo(courseId,studentId,"assignment",id);
     
     res.set({
         'Content-Type': file.contentType,

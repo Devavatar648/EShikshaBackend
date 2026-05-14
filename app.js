@@ -23,7 +23,7 @@ app.use( express.urlencoded( { extended:true } ) );
 app.use( cors( { origin: process.env.ORIGIN_URL } ) );
 
 // public api endpoints
-app.use("/", publicRouter)
+app.use("/", publicRouter);
 // user endpoints
 app.use("/auth", authRouter);
 
