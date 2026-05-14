@@ -32,4 +32,3 @@ export const authenticateUser = funcWrapper(async (req, res)=>{
         throw "Incorrect Password";
     }
 })
-

@@ -34,6 +34,8 @@ app.use("/admin", adminRequestHandler, adminRouter);
 app.use("/instructor", instructorRequestHandler, instructorRouter);
 // Student
 app.use("/student", studnetRequestHandler, studentRouter);
+// all user
+app.use("/user", )
 
 // ErrorHandler Middleware
 app.use( errorHandler );

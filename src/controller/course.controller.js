@@ -12,6 +12,8 @@ import { getCourseAssignments } from "./assignment.controller.js";
 // public
 export const getCourses = funcWrapper(async (req, res) => {
     const { instId, title } = req.query;
+    let pageSize = req.query.pageSize || 5;
+    let pageNumber = req.query.pageNumber || 1;
     let queryObj = {};
     if (instId) {
         queryObj['instructor'] = instId;
@@ -19,7 +21,8 @@ export const getCourses = funcWrapper(async (req, res) => {
     if (title) {
         queryObj['title'] = { $regex:title, $options:'i' };
     }
-    const courses = await courseModel.find(queryObj).populate("instructor", "name");
+    const courses = await courseModel.find(queryObj).sort({title:1}).populate("instructor", "name")
+                        .skip((pageNumber-1)*pageSize).limit(pageSize);
     if (!courses) {
         throw new ErrorResponse(404, "No Course Found");
     }
