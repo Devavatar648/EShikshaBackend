@@ -11,20 +11,24 @@ import { getCourseAssignments } from "./assignment.controller.js";
 
 // public
 export const getCourses = funcWrapper(async (req, res) => {
-    const { instId, title } = req.query;
+    const { instructor, title } = req.query;
+    let pageSize = req.query.pageSize || 5;
+    let pageNumber = req.query.pageNumber || 1;
     let queryObj = {};
-    if (instId) {
-        queryObj['instructor'] = instId;
+    if(instructor) {
+        queryObj['instructor'] = instructor;
     }
     if (title) {
         queryObj['title'] = { $regex:title, $options:'i' };
     }
-    const courses = await courseModel.find(queryObj).populate("instructor", "name");
+    const courses = await courseModel.find(queryObj).sort({title:1}).populate("instructor", "name")
+                        .skip((pageNumber-1)*pageSize).limit(pageSize);
     if (!courses) {
         throw new ErrorResponse(404, "No Course Found");
     }
     res.status(200).json(new AppResponse(courses, "Course found"));
 })
+
 
 export const getCourseById = funcWrapper(async (req, res) => {
     const { courseId } = req.params;
@@ -67,7 +71,7 @@ export const updateCourse = funcWrapper(async (req, res) => {
         throw "This course is not exists or created by you";
     }
 
-    res.status(200).json(course);
+    res.status(200).json(new AppResponse(course, "Course created successfully."));
 })
 
 
