@@ -58,6 +58,7 @@ courseSchema.pre("save",async function(){
     if(course){
         throw `course already exists with ${this.title} ${this.category}`;
     }
+    
 })
 
 

@@ -16,10 +16,11 @@ export const downloadAssignmentFile = funcWrapper( async (req, res) => {
         return new ErrorResponse(404, "File not found");
     }
     res.set({
-        'Content-Type': file.contentType,
+        'Content-Type': file.fileType,
         'Content-Disposition': `attachment; filename="${file.fileName}"`
     })
-    res.send(file.data);
+
+    res.send(file.fileData);
 })
 
 
