@@ -1,11 +1,10 @@
 import express from 'express';
+import { updateUserSettings } from '../controller/user.controller.js';
 
 const router = express.Router();
-// admin endpoints
-router.get("/users", getAllUser);
 
-router.route("/user/:userId")
-    .patch( updateUser )
-    .delete( removeUser )
+
+router.route("/settings")
+    .patch( updateUserSettings )
 
 export default router;
