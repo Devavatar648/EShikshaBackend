@@ -23,10 +23,11 @@ export const downloadAssignmentFile = funcWrapper( async (req, res) => {
     updatedCourseInfo(courseId,studentId,"assignment",id);
     
     res.set({
-        'Content-Type': file.contentType,
+        'Content-Type': file.fileType,
         'Content-Disposition': `attachment; filename="${file.fileName}"`
     })
-    res.send(file.data);
+
+    res.send(file.fileData);
 })
 
 
