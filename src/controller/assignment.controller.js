@@ -33,10 +33,13 @@ export const addAssignment = funcWrapper(async (req, res) => {
 
 export const deleteAssignment = funcWrapper(async (req, res) => {
     const { courseId, id } = req.params;
+    console.log("delete runnig");
+    console.log(courseId, id, req.user.id);
     const deleted = await AssignmentModel.findOneAndDelete({ _id: id, course:courseId, instructor: req.user.id });
     if ( ! deleted ) {
         return new ErrorResponse(404, "assignment not found");
     }
+    console.log("delete runnig");
     const filecount = await AssignmentModel.countDocuments({ file: deleted.file });
 
     if (filecount === 0) {
@@ -72,7 +75,10 @@ export const updateAssignment = funcWrapper(async (req, res) => {
 
 // For all registered users
 export const searchAssignment = funcWrapper(async (req, res) => {
-    const { instructorId, courseId } = req.query;
+    let { instructorId, courseId } = req.query;
+    if(!courseId){
+        courseId = req.params.courseId;
+    }
 
     const query = {};
     if (instructorId) {
