@@ -1,55 +1,52 @@
+import Enrollments from '../models/enrollment.model.js';
 import quizModel from '../models/quiz.model.js';
+import { AppResponse } from '../util/AppResponse.js';
+import { ErrorResponse } from '../util/ErrorResponse.js';
 import { funcWrapper } from '../util/wraperFunction.js';
 
 
-export const addQuiz = funcWrapper( async (req, res, next) => {
-        const { questions, perQuestionMark} = req.body;
-        if (!questions || questions.length === 0) {
-            res.status(400).json("A quiz must have at least one question.");
-        }
+export const addQuiz = funcWrapper( async (req, res) => {
+    const { questions, perQuestionMark} = req.body;
+    const { courseId } = req.params;
+    if (!questions || questions.length === 0) {
+        throw "A quiz must have at least one question.";
+    }
 
-        req.body.totalMarks=perQuestionMark*questions.length;
-        
-        const newQuiz = await new quizModel(req.body).save();
+    req.body.course=courseId;
+    req.body.instructor=req.user.id;
+    req.body.totalMarks=perQuestionMark*questions.length;
+    
+    const newQuiz = await new quizModel(req.body).save();
 
-        res.status(201).json({
-            message: "Quiz created successfully!",
-            data: newQuiz
-        });
+    res.status(201).json(new AppResponse(newQuiz, "Quiz created successfully!"));
 })
 
-export const getQuiz = funcWrapper(async (req, res, next) => {
+export const getQuizes = funcWrapper(async (req, res) => {
+    let query = {instructor: req.user.id};
+    const { courseId } = req.params;
+    if(courseId){
+        query['course']=courseId;
+    }
+    const quizes = await quizModel.find(query).sort({ createdAt: -1 }).select("title totalMarks timeLimit dueDate");
+    res.status(200).json(new AppResponse(quizes));
+} )
 
-        const quizes = await quizModel.find().sort({ createdAt: -1 });
-
-        res.status(200).json({
-            count: quizes.length,
-            data: quizes
-        });
-    } )
-
-export const searchQuiz =funcWrapper(async (req, res, next) => {
-    
-        const { c_id } = req.params.course;
-        const i_id=req.user.id;
-        
-        if(!c_id){
-            const quiz = await quizModel.findById(i_id);
-        }else{
-            const quiz = await quizModel.findById(c_id,i_id);
-        }
-        
-        if (!quiz) {
-            return next(new MyError("Quiz not found", 404));
-        }
-
-        res.status(200).json({
-            success: true,
-            data: quiz
-        });
-
-    
+export const getQuizById = funcWrapper(async (req, res)=>{
+    const {courseId, id} = req.params;
+    if(!courseId || !id){
+        throw "Invalid path";
+    }
+    const isEnrolled = await Enrollments.findOne().select("_id");
+    if(!isEnrolled){
+        throw new ErrorResponse(404, "This page is not exists or Invalid url");
+    }
+    const quiz = await quizModel.findOne({course:courseId,_id:id}).populate("course", "title").populate("instructor", "name");
+    if(!quiz){
+        throw new ErrorResponse(404, "This page is not exists or Invalid url");
+    }
+    res.status(200).json(new AppResponse(quiz, "success"));
 })
+
 
 export const deleteQuiz =funcWrapper( async (req, res, next) => {
         const { id } = req.params;

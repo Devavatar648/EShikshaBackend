@@ -10,14 +10,13 @@ const QuizSchema = new mongoose.Schema({
     course: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'course' 
+        ref: 'courses' 
     },
     instructor: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'users'
     },
-
     questions: [
         {
             questionText: { type: String, required: true },
