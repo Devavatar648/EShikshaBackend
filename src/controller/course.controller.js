@@ -71,7 +71,7 @@ export const updateCourse = funcWrapper(async (req, res) => {
         throw "This course is not exists or created by you";
     }
 
-    res.status(200).json(new AppResponse(course, "Course created successfully."));
+    res.status(200).json(new AppResponse(course, "Course updated successfully."));
 })
 
 
