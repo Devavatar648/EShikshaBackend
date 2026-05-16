@@ -1,4 +1,4 @@
-import { Schema , Types,model} from "mongoose";
+import { Schema , Types, model} from "mongoose";
 
 const enrollmentSchema= new Schema({
     course:{
@@ -26,5 +26,5 @@ const enrollmentSchema= new Schema({
 
 enrollmentSchema.index({course:1, student:1},{unique:true});
 
-export default new model("enrollments", enrollmentSchema);
+export default model("enrollments", enrollmentSchema);
 

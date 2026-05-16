@@ -1,10 +1,11 @@
 import express from 'express';
-import { updateUserSettings } from '../controller/user.controller.js';
+import { getUserSettings, updateUserSettings } from '../controller/user.controller.js';
 
 const router = express.Router();
 
 
 router.route("/settings")
+    .get( getUserSettings )
     .patch( updateUserSettings )
 
 export default router;

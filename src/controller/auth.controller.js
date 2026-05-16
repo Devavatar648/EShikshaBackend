@@ -24,9 +24,8 @@ export const authenticateUser = funcWrapper(async (req, res)=>{
         throw "Invalid Email Address";
     }
     if(user.isCorrectPassword(req.body.password)){
-        const userData = user.toJSON();
-        delete(userData.password);
-        const token = jwt.sign(userData, process.env.SECRET_KEY, {expiresIn:'2d'});
+        const payload = {_id:user._id, role:user.role}
+        const token = jwt.sign(payload, process.env.SECRET_KEY, {expiresIn:'2d'});
         res.status(200).json(new AppResponse({token},"User LoggedIn"));
     }else{
         throw "Incorrect Password";

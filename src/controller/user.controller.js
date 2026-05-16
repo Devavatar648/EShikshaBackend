@@ -1,6 +1,8 @@
 import userModel from "../models/user.model.js";
 import { AppResponse } from "../util/AppResponse.js";
+import { ErrorResponse } from "../util/ErrorResponse.js";
 import { funcWrapper } from "../util/wraperFunction.js";
+import crypto from 'crypto';
 
 // User
 export const updateUserSettings = funcWrapper(async (req, res)=>{
@@ -19,8 +21,19 @@ export const updateUserSettings = funcWrapper(async (req, res)=>{
         if(user.id!==userId){
             throw "You don't have permission for updating this user password";
         }
-        updatedData['password']=password;
+        updatedData['password']=crypto.hash('sha256', password);
     }
-    await new userModel.findByIdAndUpdate({_id:userId}, {$set:updatedData}, {runValidators:true});
+    await userModel.findByIdAndUpdate({_id:userId}, {$set:updatedData}, {runValidators:true});
     res.status(200).json(new AppResponse(null, "settings changed"));
+})
+
+export const getUserSettings = funcWrapper(async (req, res)=>{
+    if(!req.user.id){
+        throw "You are not a valid user";
+    }
+    const user = await userModel.findById(req.user.id).select("-password -__v -createdAt -updatedAt -_id");
+    if(!user){
+        throw new ErrorResponse(404, "User not found");
+    }
+    res.status(200).json(new AppResponse(user, "success"));
 })
