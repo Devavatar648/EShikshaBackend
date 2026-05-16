@@ -40,10 +40,6 @@ const QuizSchema = new mongoose.Schema({
         required: true,
         min: 1
     },
-    dueDate: {
-        type: Date,
-        required: true
-    }
 }, {
     timestamps: true
 });
