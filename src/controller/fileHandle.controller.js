@@ -33,6 +33,7 @@ export const downloadAssignmentFile = funcWrapper( async (req, res) => {
 
 export const uploadAssignmentFile = async ( req ) => {
     if (req.file) {
+        
         const bufferHash = getHash(req.file.buffer);
 
         let file = await FileModel.findOne({ hashedData: bufferHash });

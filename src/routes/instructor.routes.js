@@ -15,6 +15,9 @@ const uploading = multer({
     limits: { fileSize: 5 * 1024 * 1024 } // 5mb limit
 });
 
+
+
+//assignments
 router.route("/course/:courseId/assignment")
     .post(assignmentValidators, uploading.single('myFile'), addAssignment)
     .get(searchAssignment);
@@ -35,6 +38,7 @@ router.route("/course/:id")
 router.route("/course/:courseId/assignment/download/:id").get(downloadAssignmentFile);
 
 
+//quizes
 router.route("/course/:courseId/quiz")
     .post( addQuiz )
     .get(getQuiz)
