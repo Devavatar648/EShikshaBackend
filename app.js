@@ -6,12 +6,9 @@ import adminRouter from './src/routes/admin.routes.js';
 import publicRouter from "./src/routes/public.routes.js"
 import studentRouter from "./src/routes/student.routes.js";
 import userRouter from './src/routes/user.routes.js';
-import { errorHandler } from './src/middleware/errorHandler.middleware.js';
-import { adminRequestHandler } from './src/middleware/adminRequestHandler.middleware.js';
 import instructorRouter from './src/routes/instructor.routes.js';
-import { instructorRequestHandler } from './src/middleware/instsructorRequestHandler.middleware.js';
-import { studnetRequestHandler } from './src/middleware/studetnRequestHandler.middleware.js';
-import { userRequestHandler } from './src/middleware/userRequestHandler.middleware.js';
+import { errorHandler } from './src/middleware/errorHandler.middleware.js';
+import { protectedRequestHandler } from './src/middleware/protectedRequestHandler.middleware.js';
 
 env.config();
 
@@ -35,13 +32,13 @@ app.use("/auth", authRouter);
 
 // private api endpoints
 // Admin endpoints
-app.use("/admin", adminRequestHandler, adminRouter);
+app.use("/admin", protectedRequestHandler(['admin']), adminRouter);
 // Instructor
-app.use("/instructor", instructorRequestHandler, instructorRouter);
+app.use("/instructor", protectedRequestHandler(['instructor']), instructorRouter);
 // Student
-app.use("/student", studnetRequestHandler, studentRouter);
+app.use("/student", protectedRequestHandler(['student']), studentRouter);
 // all user
-app.use("/user", userRequestHandler, userRouter)
+app.use("/user", protectedRequestHandler(['admin','instructor','student']), userRouter)
 
 // ErrorHandler Middleware
 app.use( errorHandler );

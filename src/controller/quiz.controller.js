@@ -1,94 +1,90 @@
+import Enrollments from '../models/enrollment.model.js';
 import quizModel from '../models/quiz.model.js';
+import { AppResponse } from '../util/AppResponse.js';
+import { ErrorResponse } from '../util/ErrorResponse.js';
 import { funcWrapper } from '../util/wraperFunction.js';
+import { Types } from 'mongoose';
 
 
-export const addQuiz = funcWrapper( async (req, res, next) => {
-        const { questions, perQuestionMark} = req.body;
-        if (!questions || questions.length === 0) {
-            res.status(400).json("A quiz must have at least one question.");
-        }
+export const addQuiz = funcWrapper( async (req, res) => {
+    const { questions, markPerQuestion} = req.body;
+    const { courseId } = req.params;
+    if (!questions || questions.length === 0) {
+        throw "A quiz must have at least one question.";
+    }
 
-        req.body.totalMarks=perQuestionMark*questions.length;
-        
-        const newQuiz = await new quizModel(req.body).save();
-
-        res.status(201).json({
-            message: "Quiz created successfully!",
-            data: newQuiz
-        });
-})
-
-export const getQuiz = funcWrapper(async (req, res, next) => {
-
-        const quizes = await quizModel.find().sort({ createdAt: -1 });
-
-        res.status(200).json({
-            count: quizes.length,
-            data: quizes
-        });
-    } )
-
-export const searchQuiz =funcWrapper(async (req, res, next) => {
+    req.body.course=courseId;
+    req.body.instructor=req.user.id;
+    req.body.totalMarks=markPerQuestion*questions.length;
     
-        const { c_id } = req.params.course;
-        const i_id=req.user.id;
-        
-        if(!c_id){
-            const quiz = await quizModel.findById(i_id);
-        }else{
-            const quiz = await quizModel.findById(c_id,i_id);
-        }
-        
-        if (!quiz) {
-            return next(new MyError("Quiz not found", 404));
-        }
-
-        res.status(200).json({
-            success: true,
-            data: quiz
-        });
-
+    const newQuiz = await new quizModel(req.body).save();
     
+
+    res.status(201).json(new AppResponse(newQuiz, "Quiz created successfully!"));
 })
 
-export const deleteQuiz =funcWrapper( async (req, res, next) => {
-        const { id } = req.params;
+export const getQuizes = funcWrapper(async (req, res) => {
+    let query = {instructor: new Types.ObjectId(req.user.id)};
+    const { courseId } = req.params;
+    if(courseId){
+        query['course']=new Types.ObjectId(courseId);
+    }
+    
+    const quizes = await quizModel.find(query).sort({ createdAt: -1 }).select("title totalMarks timeLimit questions");
 
-        const quiz = await quizModel.findById(id);
+    res.status(200).json(new AppResponse(quizes));
+} )
 
+export const getQuizById = funcWrapper(async (req, res)=>{
+    const {courseId, id} = req.params;
+    if(!courseId || !id){
+        throw "Invalid path";
+    }
+    const isEnrolled = await Enrollments.findOne({course:courseId, student:req.user.id}).select("_id");
+    if(!isEnrolled){
+        throw new ErrorResponse(404, "This page is not exists or Invalid url");
+    }
+    const quiz = await quizModel.findOne({course:courseId,_id:id}).populate("course", "title").populate("instructor", "name");
+    if(!quiz){
+        throw new ErrorResponse(404, "This page is not exists or Invalid url");
+    }
+    res.status(200).json(new AppResponse(quiz, "success"));
+})
+
+
+export const deleteQuiz =funcWrapper( async (req, res) => {
+        const { courseId, id } = req.params;
+
+        const quiz = await quizModel.findOneAndDelete({ _id:id, course:courseId, instructor:req.user.id});
         if (!quiz) {
-            return next(new MyError("Quiz not found", 404));
+            throw new ErrorResponse(404, "No quiz found");
         }
 
-        await quizModel.findByIdAndDelete(id);
-
-        res.status(200).json({
-            message: "Quiz deleted successfully"
-        });
+        res.status(200).json(new AppResponse(null, "Quiz deleted successfully"));
 })
 
-export const updateQuiz =funcWrapper(async (req, res, next) => {
-        const { id } = req.params;
-        const quiz = await quizModel.findById(id);
+export const updateQuiz =funcWrapper(async (req, res) => {
+        const { courseId, id } = req.params;
+        let {markPerQuestion, ...quizDet} = req.body;
+        const updatedQuiz = await quizModel.findOneAndUpdate(
+            {_id:id, course:courseId, instructor:req.user.id},
+            { $set: quizDet},
+            { returnDocument: 'after', runValidators: true }
+        )
+        
+        if (!updatedQuiz) {
+            throw new ErrorResponse(404, "Quiz not found");
+        }
 
-        if (!quiz) {
-            return next(new MyError("Quiz not found", 404));
+        if(!markPerQuestion){
+            markPerQuestion = (updateQuiz.totalMarks/updateQuiz.questions.length);
         }
         
-        const updatedQuiz = await quizModel.findByIdAndUpdate(
-            id,
-            { $set:{...req.body} },
-            { new: true, runValidators: true }
-        );
-       
-        if (req.body.questions) {
-            updatedQuiz.totalMarks = updatedQuiz.questions.reduce((acc, q) => acc + (q.points || 0), 0);
+        if (req.body.questions || markPerQuestion) {
+            updatedQuiz.totalMarks = markPerQuestion*updatedQuiz.questions.length;
             await updatedQuiz.save();
         }
 
-        res.status(200).json({
-            message: "Quiz updated successfully",
-            data: updatedQuiz
-        });  
-}
+        res.status(200).json(new AppResponse(updatedQuiz, "Quiz updated successfully"));  
+    }
 ) 

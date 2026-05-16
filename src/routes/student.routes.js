@@ -5,6 +5,7 @@ import { downloadAssignmentFile } from '../controller/fileHandle.controller.js';
 import { addResult, searchResult } from '../controller/assignmentResult.controller.js';
 import { deleteAssignment } from '../controller/assignment.controller.js';
 import multer from 'multer';
+import { getQuizById } from '../controller/quiz.controller.js';
 
 
 const router = express.Router();
@@ -31,6 +32,8 @@ router.route("/course/:courseeId/assignment/:assignmentId/result")
 
 //download
 router.route("/course/:courseId/assignment/download/:id").get(downloadAssignmentFile);
+router.route("/course/:courseId/quiz/:id")
+    .get( getQuizById )
     
 
 export default router;
