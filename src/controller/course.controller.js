@@ -6,6 +6,7 @@ import courseModel from "../models/course.model.js";
 import { AppResponse } from "../util/AppResponse.js";
 import { ErrorResponse } from "../util/ErrorResponse.js";
 import { getCourseAssignments } from "./assignment.controller.js";
+import { getCourseQuizes } from "./quiz.controller.js";
 
 
 
@@ -37,7 +38,8 @@ export const getCourseById = funcWrapper(async (req, res) => {
         throw new ErrorResponse(404, "No Course Found");
     }
     const assignments = await getCourseAssignments(course._id);
-    const response = {course, assignments}
+    const quizzes = await getCourseQuizes(course._id);
+    const response = {course, assignments, quizzes};
     res.status(200).json(new AppResponse(response, "Course found"));
 })
 

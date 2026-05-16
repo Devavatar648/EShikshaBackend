@@ -101,7 +101,7 @@ export const searchAssignment = funcWrapper(async (req, res) => {
 
 export const getCourseAssignments = async (courseId)=>{
     try{
-        return await AssignmentModel.find({course:courseId}).select("-_id title dueDate totalMarks file");
+        return await AssignmentModel.find({course:courseId}).select("title dueDate totalMarks file");
     }catch(err){
         console.log(err);
     }

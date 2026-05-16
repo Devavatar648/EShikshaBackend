@@ -7,7 +7,6 @@ export const enrollment=async(req,res,next)=>{
     const courseId=req.params.courseId;
     try{
         const enroll= await new Enrollments({student:req.user.id, course:courseId}).save();
-        console.log(enroll);
 
         if(!enroll){
             throw new ErrorResponse(400,"Something went wrong");
