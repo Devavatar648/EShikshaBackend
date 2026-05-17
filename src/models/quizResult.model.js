@@ -30,7 +30,7 @@ const quizResultScheema = new mongoose.Schema({
         default:0
     },
     timeTaken:{
-        type:Number,
+        type:String,
         required: true
     }
 },{
