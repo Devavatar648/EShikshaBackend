@@ -32,6 +32,20 @@ export const showEnrolledCourses=funcWrapper(async(req,res)=>{
         res.status(200).json(new AppResponse(enrolledCourse,"Your enrolled Course-"));
 })
 
+export const deleteEnrollment=funcWrapper(async(req,res)=>{
+        const courseId=req.params.courseId;
+        const studentId = req.user.id;
+
+        const deletedEnrollment=await Enrollments.deleteOne({student:studentId,course:courseId});
+
+        if (!deletedEnrollment) {
+            return next(new ErrorResponse(400, "You are not enrolled in this course."));
+        }
+
+        res.status(200).json(new AppResponse(null, "Successfully unenrolled from the course!"));
+
+})
+
 export const updatedCourseInfo=async(courseId, studentId, updateField, fieldId)=>{
     try{
 
