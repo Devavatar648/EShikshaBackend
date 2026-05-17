@@ -2,7 +2,7 @@ import express from 'express';
 import { getCourseById } from '../controller/course.controller.js';
 import { enrollment, showEnrolledCourses } from '../controller/enrollment.controller.js';
 import { downloadAssignmentFile } from '../controller/fileHandle.controller.js';
-import { addResult, searchResult } from '../controller/assignmentResult.controller.js';
+import { addResult, deleteResult, giveMarks, searchResults } from '../controller/assignmentResult.controller.js';
 import { deleteAssignment } from '../controller/assignment.controller.js';
 import multer from 'multer';
 import { getQuizById } from '../controller/quiz.controller.js';
@@ -23,15 +23,22 @@ router.route("/course/:courseId/enroll")
 
 
 
-router.route("/course/:courseeId/assignment/:assignmentId/result")
-.post(uploading.single('myFile'),addResult)
-.get(searchResult)
-.delete(deleteAssignment);
+// router.route("/course/:courseId/assignment/:assignmentId/result")
+// .post(uploading.single('myFile'),addResult)
+// .get(searchResults)
+// .delete(deleteResult)
+// .patch(giveMarks);
 
+
+
+// This route handles operations relative to a specific assignment item
+router.route("/course/:courseId/assignment/:assignmentId/result")
+    .post(uploading.single('myFile'),addResult)                                          // Instructor views all submissions                           // Student deletes their submission
 
 
 //download
 router.route("/course/:courseId/assignment/download/:id").get(downloadAssignmentFile);
+
 router.route("/course/:courseId/quiz/:id")
     .get( getQuizById )
     
