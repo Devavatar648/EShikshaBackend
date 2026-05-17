@@ -7,6 +7,8 @@ import { AppResponse } from "../util/AppResponse.js";
 import { ErrorResponse } from "../util/ErrorResponse.js";
 import { getCourseAssignments } from "./assignment.controller.js";
 import { getCourseQuizes } from "./quiz.controller.js";
+import assignmentModel from "../models/assignment.model.js";
+import quizModel from "../models/quiz.model.js";
 
 
 
@@ -87,3 +89,15 @@ export const deleteCourse = funcWrapper(async (req, res) => {
     res.status(200).json(course);
 })
 
+
+export const getCountCourseAssignmentsAndQuizes = async (courseId)=>{
+    try{
+        const response = await Promise.all([
+            await assignmentModel.countDocuments({course:courseId}),
+            await quizModel.countDocuments({course:courseId})
+        ])
+        return response;
+    }catch(err){
+        console.log(err);
+    }
+}

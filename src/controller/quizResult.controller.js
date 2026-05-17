@@ -3,6 +3,7 @@ import QuizResultModel from "../models/quizResult.model.js";
 import { AppResponse } from "../util/AppResponse.js";
 import quizModel from "../models/quiz.model.js";
 import { Types } from "mongoose";
+import { updatedCourseInfo } from "./enrollment.controller.js";
 
 
 export const addQuizResult = funcWrapper(async (req, res)=>{
@@ -38,6 +39,9 @@ export const addQuizResult = funcWrapper(async (req, res)=>{
     if(!quizResult){
         throw "Internal server error";
     }
+
+    updatedCourseInfo(courseId, studentId, 'quiz', id);
+
     res.status(200).json(new AppResponse(quizResult, "Result submitted successfully"));
 })
 
