@@ -14,6 +14,11 @@ env.config();
 
 const app = express();
 
+app.use(cors({
+  origin: 'http://localhost:4200', // Your Angular URL
+  exposedHeaders: ['Content-Disposition', 'Content-Type']
+}));
+
 // app configuration
 app.use( express.json() );
 app.use( express.urlencoded( { extended:true } ) );
