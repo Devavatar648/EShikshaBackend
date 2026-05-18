@@ -46,6 +46,6 @@ const QuizSchema = new mongoose.Schema({
 
 
 
-QuizSchema.index({instructor:1,course:1});
+QuizSchema.index({instructor:1, course:1});
 
 export default mongoose.model("quizze", QuizSchema);

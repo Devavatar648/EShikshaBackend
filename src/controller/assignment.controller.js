@@ -1,6 +1,5 @@
 import AssignmentModel from '../models/assignment.model.js';
 import FileModel from '../models/file.model.js';
-import crypto from 'crypto';
 import { funcWrapper } from '../util/wraperFunction.js';
 import { AppResponse } from '../util/AppResponse.js';
 import { uploadAssignmentFile } from './fileHandle.controller.js';
@@ -8,10 +7,10 @@ import { ErrorResponse } from '../util/ErrorResponse.js';
 import courseModel from '../models/course.model.js';
 
 
-// For Instructor 
 export const addAssignment = funcWrapper(async (req, res) => {
     // Validation for Multer: check if file exists
     const { courseId } = req.params;
+
     if (!req.file) {
         throw new Error("Please upload a PDF file using the 'myFile' key.");
     }
@@ -71,8 +70,6 @@ export const updateAssignment = funcWrapper(async (req, res) => {
 });
 
 
-
-
 // For all registered users
 export const searchAssignment = funcWrapper(async (req, res) => {
     let { instructorId, courseId } = req.query;
@@ -94,16 +91,19 @@ export const searchAssignment = funcWrapper(async (req, res) => {
     if (!assignment) {
         return res.status(404).json({ message: "No assignment found" });
     }
-
+    console.log(assignment);
     res.status(200).json(new AppResponse(assignment, "found"));
 
 })
 
 export const getCourseAssignments = async (courseId)=>{
     try{
-        return await AssignmentModel.find({course:courseId}).select("-_id title dueDate totalMarks file");
+        return await AssignmentModel.find({course:courseId}).select("title dueDate totalMarks file");
     }catch(err){
         console.log(err);
     }
 }
+
+
+
 
