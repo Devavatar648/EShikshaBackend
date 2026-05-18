@@ -1,6 +1,5 @@
 import express from 'express';
 import { getCourseById } from '../controller/course.controller.js';
-import { enrollment, showEnrolledCourses } from '../controller/enrollment.controller.js';
 import { downloadAssignmentFile } from '../controller/fileHandle.controller.js';
 import { addResult, deleteResult, giveMarks, searchResults } from '../controller/assignmentResult.controller.js';
 import { deleteAssignment } from '../controller/assignment.controller.js';
