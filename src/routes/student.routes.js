@@ -5,7 +5,9 @@ import { downloadAssignmentFile } from '../controller/fileHandle.controller.js';
 import { addResult, deleteResult, giveMarks, searchResults } from '../controller/assignmentResult.controller.js';
 import { deleteAssignment } from '../controller/assignment.controller.js';
 import multer from 'multer';
+import { enrollment, showEnrolledCourses, deleteEnrollment } from '../controller/enrollment.controller.js';
 import { getQuizById } from '../controller/quiz.controller.js';
+import { addQuizResult } from '../controller/quizResult.controller.js';
 
 
 const router = express.Router();
@@ -17,9 +19,17 @@ const uploading = multer({
 });
 
 // router.get("/course", getCourseById);
+router.route("/course")
+    .get( showEnrolledCourses )
+
+// router.route("/course/:courseId")
+//     .get( getEnrolledCourse )
+
+
 router.route("/course/:courseId/enroll")
     .post(enrollment)
-    .get(showEnrolledCourses)
+    .delete( deleteEnrollment )
+
 
 
 
@@ -40,6 +50,7 @@ router.route("/course/:courseId/assignment/:assignmentId/result")
 router.route("/course/:courseId/assignment/download/:id").get(downloadAssignmentFile);
 
 router.route("/course/:courseId/quiz/:id")
+    .post( addQuizResult )
     .get( getQuizById )
     
 
