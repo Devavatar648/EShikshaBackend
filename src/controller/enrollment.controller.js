@@ -21,7 +21,6 @@ export const enrollment=async(req,res,next)=>{
 
 export const showEnrolledCourses=funcWrapper(async(req,res)=>{
    
-    
         let queryObj={'student':req.user.id};
         if(req.params.courseId){
             queryObj['course']=req.params.courseId;
