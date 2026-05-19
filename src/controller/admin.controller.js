@@ -64,6 +64,11 @@ export const getDashboard = funcWrapper(async (req, res)=>{
                                 _id: '$role',
                                 total: { $sum: 1 }
                             }
+                        },
+                        {
+                            $sort:{
+                                role:1
+                            }
                         }
                     ],
                     "monthlyEnrollments": [

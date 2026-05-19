@@ -6,6 +6,7 @@ import assignmentModel from "../models/assignment.model.js";
 import { AppResponse } from "../util/AppResponse.js";
 import { ErrorResponse } from "../util/ErrorResponse.js";
 import mongoose from "mongoose";
+import { updatedCourseInfo } from "./enrollment.controller.js";
 
 
 export const addResult = funcWrapper(async (req, res) => {
@@ -111,11 +112,7 @@ export const deleteResult = funcWrapper(async (req, res) => {
 
 
 export const giveMarks = funcWrapper(async (req, res) => {
-    const { courseId } = req.params;
-    // const { studentID } = req.query;
-    // const instructorId = req.user.id;
-
-    const { resultId } = req.params;
+    const { courseId, resultId } = req.params;
     const instructorId = req.user.id;
 
     const validInstructor = await courseModel.findOne({ instructor: instructorId, _id: courseId });
@@ -123,11 +120,6 @@ export const giveMarks = funcWrapper(async (req, res) => {
         throw new ErrorResponse(404, "Only valid instructors can give marks")
     }
 
-    // const updated = await assignmentResultModel.findOneAndUpdate(
-    //     {student:studentID,course:courseId,assignment:assignmentId,instructor:instructorId},
-    //     req.body,
-    //     { new: true, runValidators: true }
-    // );
 
     const updated = await assignmentResultModel.findOneAndUpdate(
         { _id: resultId, instructor: instructorId },
@@ -138,5 +130,8 @@ export const giveMarks = funcWrapper(async (req, res) => {
     if (!updated) {
         return new ErrorResponse(404, "problem updating marks");
     }
+
+    updatedCourseInfo(courseId, updated.student, 'assignment', updated.assignment);
+
     res.status(200).json(new AppResponse(null, "marks Updated"));
 })
