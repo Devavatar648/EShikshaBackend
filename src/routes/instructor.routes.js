@@ -7,6 +7,7 @@ import { addAssignment, deleteAssignment, searchAssignment, updateAssignment } f
 import { addQuiz, deleteQuiz, updateQuiz, getQuizes } from '../controller/quiz.controller.js';
 import { downloadAssignmentFile } from '../controller/fileHandle.controller.js';
 import { deleteResult, giveMarks, searchResults } from '../controller/assignmentResult.controller.js';
+import { getInstructorDashboard } from '../controller/user.controller.js';
 
 const router = express.Router();
 
@@ -16,7 +17,8 @@ const uploading = multer({
     limits: { fileSize: 5 * 1024 * 1024 } // 5mb limit
 });
 
-
+router.route("/dashboard")
+    .get(getInstructorDashboard);
 
 //assignments
 router.route("/course/:courseId/assignment")

@@ -83,7 +83,7 @@ export const deleteEnrollment = funcWrapper(async (req, res) => {
 
 export const updatedCourseInfo = async (courseId, studentId, updateField, fieldId) => {
     try {
-        if (updateField == "assignent") {
+        if (updateField == "assignment") {
             await Enrollments.findOneAndUpdate({ course: courseId, student: studentId }, { $push: { attendedAssignments: fieldId } });
         } else {
             await Enrollments.findOneAndUpdate({ course: courseId, student: studentId }, { $push: { attendedQuizes: fieldId  } });
