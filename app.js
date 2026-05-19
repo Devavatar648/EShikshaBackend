@@ -29,7 +29,6 @@ app.use("/", publicRouter);
 // user endpoints
 app.use("/auth", authRouter);
 
-
 // private api endpoints
 // Admin endpoints
 app.use("/admin", protectedRequestHandler(['admin']), adminRouter);
