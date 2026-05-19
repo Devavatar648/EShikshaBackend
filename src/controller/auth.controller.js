@@ -16,7 +16,7 @@ export const registerUser = funcWrapper(async (req, res)=>{
     const user = await new UserModel(req.body).save();
     res.status(201).json(new AppResponse(user,"Registration Successful"));
 })
-
+ 
 // Authenticate User
 export const authenticateUser = funcWrapper(async (req, res)=>{
     let user = await UserModel.findOne({email:req.body.email}).select("-createdAt -updatedAt -__v");

@@ -25,7 +25,7 @@ export const addQuizResult = funcWrapper(async (req, res)=>{
     }
 
     const quizResult = await QuizResultModel.findOneAndUpdate(
-        {instructor:instructor, course:courseId, quiz:id},
+        {instructor:instructor, course:courseId, student:studentId},
         {
             $set: {obtainMarks:obtainMarks, ...submittedQuizData},
             $setOnInsert: resultData
