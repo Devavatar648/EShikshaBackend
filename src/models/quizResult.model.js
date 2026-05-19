@@ -18,7 +18,7 @@ const quizResultScheema = new mongoose.Schema({
     },
     quiz:{
         type: mongoose.Types.ObjectId,
-        ref: 'quizzes',
+        ref: 'quizze',
         required: true
     },
     answers:{

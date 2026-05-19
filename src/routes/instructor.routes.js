@@ -1,5 +1,5 @@
 import express from 'express';
-import { createCourse, updateCourse, deleteCourse } from '../controller/course.controller.js';
+import { createCourse, updateCourse, deleteCourse, getStudentsCourseProgress } from '../controller/course.controller.js';
 import validSchema from '../validators/course.validator.js';
 import multer from 'multer';
 import { assignmentValidators } from '../validators/assignment.validator.js';
@@ -35,6 +35,9 @@ router.route("/course")
 router.route("/course/:id")
     .patch(updateCourse)
     .delete(deleteCourse)
+
+router.route("/course/:courseId/report")
+    .get( getStudentsCourseProgress )
 
 
 // Decoupled from the parent composite route to target the submission directly by its individual ID

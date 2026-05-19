@@ -42,6 +42,7 @@ app.use("/instructor", protectedRequestHandler(['instructor']), instructorRouter
 app.use("/student", protectedRequestHandler(['student']), studentRouter);
 // all user
 app.use("/user", protectedRequestHandler(['admin','instructor','student']), userRouter);
+
 app.use('/api/ai', protectedRequestHandler(['admin','instructor','student']),aiAssistantRoutes);
 app.use('/api/forum', protectedRequestHandler(['admin','instructor','student']),forumRoute);
 app.use('/api/announcements', announcementRouter);

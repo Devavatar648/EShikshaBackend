@@ -55,6 +55,7 @@ export const getInstructorDashboard = funcWrapper(async (req, res)=>{
         {
             $project:{
                 title:1,
+                category:1,
                 avarageRating:"$rating.average"
             }
         },
@@ -84,6 +85,11 @@ export const getInstructorDashboard = funcWrapper(async (req, res)=>{
                 _id:0,
                 course:"$_id",
                 totalStudents: 1
+            }
+        },
+        {
+            $sort:{
+                course:1
             }
         }
     ])
