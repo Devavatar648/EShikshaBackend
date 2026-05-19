@@ -32,9 +32,9 @@ router.route("/course/:courseId/assignment/:id")
 router.route("/course")
     .post(validSchema, createCourse)
 
-router.route("course/:courseId/course/:id")
+router.route("/course/:id")
     .patch(updateCourse)
-    .delete(deleteCourse);
+    .delete(deleteCourse)
 
 
 // Decoupled from the parent composite route to target the submission directly by its individual ID

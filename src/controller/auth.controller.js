@@ -16,7 +16,7 @@ export const registerUser = funcWrapper(async (req, res)=>{
     const user = await new UserModel(req.body).save();
     res.status(201).json(new AppResponse(user,"Registration Successful"));
 })
-
+ 
 // Authenticate User
 export const authenticateUser = funcWrapper(async (req, res)=>{
     let user = await UserModel.findOne({email:req.body.email}).select("-createdAt -updatedAt -__v");
@@ -25,9 +25,10 @@ export const authenticateUser = funcWrapper(async (req, res)=>{
     }
     if(user.isCorrectPassword(req.body.password)){
         const payload = {_id:user._id, role:user.role}
-        const token = jwt.sign(payload, process.env.SECRET_KEY, {expiresIn:'2d'});
+        const token = jwt.sign(payload, process.env.SECRET_KEY, {expiresIn:'2d'}); 
         res.status(200).json(new AppResponse({token},"User LoggedIn"));
     }else{
         throw "Incorrect Password";
     }
 })
+ 

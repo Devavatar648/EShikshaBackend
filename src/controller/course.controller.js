@@ -67,7 +67,7 @@ export const updateCourse = funcWrapper(async (req, res) => {
     const id = req.params.id;
     const course = await courseModel.findOneAndUpdate({ _id: id, instructor: req.user.id }, { $set: req.body }, {
         runValidators: true,
-        new: true,
+        returnDocument: "after",
         context: 'query'
     });
 
@@ -86,7 +86,7 @@ export const deleteCourse = funcWrapper(async (req, res) => {
     if (course.deletedCount === 0) {
         throw "This course is not exists or created by you";
     }
-    res.status(200).json(course);
+    res.status(200).json(new AppResponse(null,"Course deleted successfully"));
 })
 
 
