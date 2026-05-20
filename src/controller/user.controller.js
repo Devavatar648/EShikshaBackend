@@ -109,8 +109,16 @@ export const getStudentDashboard = funcWrapper(async (req, res)=>{
         },
         {
             $lookup:{
-                from:"assignments",
+                from: "courses",
                 localField: "course",
+                foreignField:"_id",
+                as: "course"
+            }
+        },
+        {
+            $lookup:{
+                from:"assignments",
+                localField: "course._id",
                 foreignField:"course",
                 as: "courseAssignments"
             }
@@ -118,7 +126,7 @@ export const getStudentDashboard = funcWrapper(async (req, res)=>{
         {
             $lookup:{
                 from:"quizzes",
-                localField: "course",
+                localField: "course._id",
                 foreignField:"course",
                 as: "courseQuizes"
             }
@@ -126,7 +134,10 @@ export const getStudentDashboard = funcWrapper(async (req, res)=>{
         {
             $project:{
                 _id:0,
-                course:1,
+                createdAt:1,
+                "course._id":1,
+                "course.title": 1,
+                "course.category":1,
                 totalAttended:{$add:[
                     {$size: "$attendedAssignments"}, 
                     {$size: "$attendedQuizes"}
@@ -138,10 +149,15 @@ export const getStudentDashboard = funcWrapper(async (req, res)=>{
                     ]
                 }
             }
+        },
+        {
+            $sort:{
+                createdAt:-1
+            }
         }
     ])
 
-    const quizResult = await quizResultModel.find({student:studentId}).select("quiz obtainMarks").populate("quiz", "-_id totalMarks").populate("course", "-_id title category");
+    const quizResult = await quizResultModel.find({student:studentId}).select("quiz obtainMarks createdAt").populate("quiz", "-_id totalMarks").populate("course", "-_id title category").sort({obtainMarks:-1});
 
     res.status(200).json(new AppResponse({enrolledCourses, quizResult}, "success"));
 })
