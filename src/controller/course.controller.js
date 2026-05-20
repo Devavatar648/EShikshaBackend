@@ -128,3 +128,14 @@ export const getCountCourseAssignmentsAndQuizes = async (courseId)=>{
         console.log(err);
     }
 }
+
+export const submitReview=funcWrapper(async(req,res)=>{
+            const courseId=req.params;
+            const {rating,feedback}=req.body;
+            if(!rating && !feedback){
+                throw "Give rating and a review"
+            }else{
+                const rating=await courseModel.findOneAndUpdate({_id:courseId},{$set:{rating:rating,feedback:feedback}},{new:true, runValidators:true})
+            }
+            res.status(200).json(new AppResponse((rating,feedback),"Thanks for the Review"))
+})
