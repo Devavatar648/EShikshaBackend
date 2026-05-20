@@ -97,7 +97,7 @@ export const getStudentsCourseProgress = funcWrapper(async(req, res)=>{
     const data = await Promise.all([
         await enrollmentModel.find({course:courseId}).select("-_id -course -__v -updatedAt").populate("student", "name email"),
         await getCountCourseAssignmentsAndQuizes(courseId),
-        await quizResultModel.find({instructor:instructorId, course:courseId}).select("-_id obtainMarks quiz").populate("quiz", "totalMarks").sort({obtainMarks:-1})
+        // await quizResultModel.find({instructor:instructorId, course:courseId}).select("-_id obtainMarks quiz").populate("quiz", "totalMarks").sort({obtainMarks:-1})
     ])
 
     const response = {
@@ -107,11 +107,11 @@ export const getStudentsCourseProgress = funcWrapper(async(req, res)=>{
             createdAt: s.createdAt
         })),
         totalModules: data[1].reduce((a,b)=>a+b),
-        quizResult : data[2].map(q=>({
-            quizId:q.quiz._id,
-            totalMarks: q.quiz.totalMarks,
-            obtainMarks: q.obtainMarks
-        }))
+        // quizResult : data[2].map(q=>({
+        //     quizId:q.quiz._id,
+        //     totalMarks: q.quiz.totalMarks,
+        //     obtainMarks: q.obtainMarks
+        // }))
     }
     res.status(200).json(new AppResponse(response, "success"));
 })
