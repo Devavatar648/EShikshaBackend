@@ -98,7 +98,7 @@ export const getInstructorDashboard = funcWrapper(async (req, res)=>{
 
     res.status(200).json(new AppResponse({courses, students}, "Success"));
 })
-
+// student dashboard api
 export const getStudentDashboard = funcWrapper(async (req, res)=>{
     const studentId = req.user.id;
     const enrolledCourses = await enrollmentModel.aggregate([
