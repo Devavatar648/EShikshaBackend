@@ -1,8 +1,11 @@
 import express from 'express';
-import { getAllUser, removeUser, updateUser } from '../controller/admin.controller.js';
+import { getAllUser, getDashboard, removeUser, updateUser } from '../controller/admin.controller.js';
 
 const router = express.Router();
 // admin endpoints
+router.route("/dashboard")
+    .get( getDashboard )
+
 router.get("/users", getAllUser);
 
 router.route("/user/:userId")

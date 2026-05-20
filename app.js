@@ -20,6 +20,11 @@ env.config();
 
 const app = express();
 
+app.use(cors({
+  origin: 'http://localhost:4200', // Your Angular URL
+  exposedHeaders: ['Content-Disposition', 'Content-Type']
+}));
+
 // app configuration
 app.use( express.json() );
 app.use( express.urlencoded( { extended:true } ) );
@@ -41,7 +46,8 @@ app.use("/instructor", protectedRequestHandler(['instructor']), instructorRouter
 app.use("/student", protectedRequestHandler(['student']), studentRouter);
 // all user
 app.use("/user", protectedRequestHandler(['admin','instructor','student']), userRouter);
-app.use('/api/ai',aiAssistantRoutes);
+
+app.use('/api/ai', protectedRequestHandler(['admin','instructor','student']),aiAssistantRoutes);
 app.use('/api/forum', protectedRequestHandler(['admin','instructor','student']),forumRoute);
 app.use('/api/announcements', protectedRequestHandler(['instructor', 'student']), announcementRouter);
 app.use('/api/forum', protectedRequestHandler(['instructor', 'student']),forumRouter);

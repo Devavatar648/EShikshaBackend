@@ -18,9 +18,9 @@ export const downloadAssignmentFile = funcWrapper( async (req, res) => {
         return new ErrorResponse(404, "File not found");
     }
 
-    const studentId=req.user.id;
-    const courseId=req.params.courseId;
-    updatedCourseInfo(courseId,studentId,"assignment",id);
+    // const studentId=req.user.id;
+    // const courseId=req.params.courseId;
+    // updatedCourseInfo(courseId,studentId,"assignment",id);
     
     res.set({
         'Content-Type': file.fileType,
@@ -33,6 +33,7 @@ export const downloadAssignmentFile = funcWrapper( async (req, res) => {
 
 export const uploadAssignmentFile = async ( req ) => {
     if (req.file) {
+        
         const bufferHash = getHash(req.file.buffer);
 
         let file = await FileModel.findOne({ hashedData: bufferHash });

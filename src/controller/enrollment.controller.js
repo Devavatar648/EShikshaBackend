@@ -3,6 +3,9 @@ import { AppResponse } from '../util/AppResponse.js';
 import { ErrorResponse } from '../util/ErrorResponse.js';
 import { funcWrapper } from '../util/wraperFunction.js';
 import { getCountCourseAssignmentsAndQuizes } from './course.controller.js';
+import quizResultModel from '../models/quizResult.model.js';
+import assignmentResultModel from '../models/assignmentResult.model.js';
+
 
 export const enrollment = funcWrapper(async (req, res) => {
     const courseId = req.params.courseId;
@@ -53,8 +56,10 @@ export const showEnrolledCourses = funcWrapper(async (req, res) => {
 export const deleteEnrollment = funcWrapper(async (req, res) => {
     const courseId = req.params.courseId;
     const studentId = req.user.id;
-
+    
     const deletedEnrollment = await Enrollments.findOneAndDelete({ student: studentId, course: courseId });
+    const deleteQuiz=await quizResultModel.findOneAndDelete({student:studentId, course:courseId});
+    const deleteAssignment=await assignmentResultModel.findOneAndDelete({student:studentId, course:courseId});
 
     if (!deletedEnrollment) {
         return next(new ErrorResponse(400, "You are not enrolled in this course."));
@@ -62,11 +67,23 @@ export const deleteEnrollment = funcWrapper(async (req, res) => {
 
     res.status(200).json(new AppResponse(null, "Successfully unenrolled from the course!"));
 
+    if (!deleteQuiz) {
+        return next(new ErrorResponse(400, "You don't have access."));
+    }
+
+    res.status(200).json(new AppResponse(null, "Successfully deleted the quiz"));
+
+    if (!deleteAssignment) {
+        return next(new ErrorResponse(400, "You don't have access."));
+    }
+
+    res.status(200).json(new AppResponse(null, "Successfully deleted the quiz!"));
+
 })
 
 export const updatedCourseInfo = async (courseId, studentId, updateField, fieldId) => {
     try {
-        if (updateField == "assignent") {
+        if (updateField == "assignment") {
             await Enrollments.findOneAndUpdate({ course: courseId, student: studentId }, { $push: { attendedAssignments: fieldId } });
         } else {
             await Enrollments.findOneAndUpdate({ course: courseId, student: studentId }, { $push: { attendedQuizes: fieldId  } });

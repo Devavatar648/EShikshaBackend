@@ -1,7 +1,7 @@
 import express from 'express';
-import https from 'https';
+// import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const router = express.Router();
+ const router = express.Router();
 
 const HF_TOKEN = process.env.HF_TOKEN || "hf_YmIeunZRxvDPrpXzXgYwXAnZtKdBpMjZunB"; 
 

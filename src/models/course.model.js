@@ -17,9 +17,9 @@ const courseSchema=new mongoose.Schema({
             default:0
         },
         average:{
-            type:Number,
-            max:5,
-            default:0
+            type: mongoose.Schema.Types.Decimal128,
+            max:5.0,
+            default:0.0
         }
     },
     feedback:[
