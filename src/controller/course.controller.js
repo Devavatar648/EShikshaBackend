@@ -9,6 +9,8 @@ import { getCourseAssignments } from "./assignment.controller.js";
 import { getCourseQuizes } from "./quiz.controller.js";
 import assignmentModel from "../models/assignment.model.js";
 import quizModel from "../models/quiz.model.js";
+import enrollmentModel from "../models/enrollment.model.js";
+import quizResultModel from "../models/quizResult.model.js";
 
 
 
@@ -87,6 +89,31 @@ export const deleteCourse = funcWrapper(async (req, res) => {
         throw "This course is not exists or created by you";
     }
     res.status(200).json(new AppResponse(null,"Course deleted successfully"));
+})
+
+export const getStudentsCourseProgress = funcWrapper(async(req, res)=>{
+    const {courseId} = req.params;
+    const instructorId = req.user.id;
+    const data = await Promise.all([
+        await enrollmentModel.find({course:courseId}).select("-_id -course -__v -updatedAt").populate("student", "name email"),
+        await getCountCourseAssignmentsAndQuizes(courseId),
+        // await quizResultModel.find({instructor:instructorId, course:courseId}).select("-_id obtainMarks quiz").populate("quiz", "totalMarks").sort({obtainMarks:-1})
+    ])
+
+    const response = {
+        students:data[0].map(s=>({
+            completedModule: s.attendedAssignments.length+s.attendedQuizes.length,
+            student:s.student,
+            createdAt: s.createdAt
+        })),
+        totalModules: data[1].reduce((a,b)=>a+b),
+        // quizResult : data[2].map(q=>({
+        //     quizId:q.quiz._id,
+        //     totalMarks: q.quiz.totalMarks,
+        //     obtainMarks: q.obtainMarks
+        // }))
+    }
+    res.status(200).json(new AppResponse(response, "success"));
 })
 
 

@@ -1,5 +1,5 @@
 import express from "express" ;
-import { deleteAnnouncement, publishAnnocement } from "../controller/annocements.controller.js";
+import { deleteAnnouncement, publishAnnocement } from "../controller/announcements.controller.js";
 
 
 

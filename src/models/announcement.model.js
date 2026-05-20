@@ -13,7 +13,8 @@ const annocementSchema = new mongoose.Schema({
  },
  course:{
    type:mongoose.Types.ObjectId,
-    required:true
+    required:true,
+    ref: 'courses'
  }
 
 },{
