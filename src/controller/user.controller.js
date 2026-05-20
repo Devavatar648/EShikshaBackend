@@ -1,3 +1,6 @@
+import mongoose from "mongoose";
+import courseModel from "../models/course.model.js";
+import enrollmentModel from "../models/enrollment.model.js";
 import userModel from "../models/user.model.js";
 import { AppResponse } from "../util/AppResponse.js";
 import { ErrorResponse } from "../util/ErrorResponse.js";
@@ -36,4 +39,60 @@ export const getUserSettings = funcWrapper(async (req, res)=>{
         throw new ErrorResponse(404, "User not found");
     }
     res.status(200).json(new AppResponse(user, "success"));
+})
+
+
+
+export const getInstructorDashboard = funcWrapper(async (req, res)=>{
+    const instructorId = req.user.id;
+
+    const courses = await courseModel.aggregate([
+        {
+            $match:{
+                instructor: new mongoose.Types.ObjectId(instructorId)
+            }
+        },
+        {
+            $project:{
+                title:1,
+                category:1,
+                avarageRating:"$rating.average"
+            }
+        },
+        {
+            $sort:{
+                avarageRating:-1
+            }
+        }
+    ])
+
+    const courseIds = courses.map(c=>c._id);
+
+    const students = await enrollmentModel.aggregate([
+        {
+            $match:{
+                course:{$in:courseIds}
+            }
+        },
+        {
+            $group:{
+                _id:"$course",
+                totalStudents: { $sum : 1 }
+            }
+        },
+        {
+            $project:{
+                _id:0,
+                course:"$_id",
+                totalStudents: 1
+            }
+        },
+        {
+            $sort:{
+                course:1
+            }
+        }
+    ])
+
+    res.status(200).json(new AppResponse({courses, students}, "Success"));
 })

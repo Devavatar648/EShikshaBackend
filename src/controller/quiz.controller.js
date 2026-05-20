@@ -40,11 +40,11 @@ export const getQuizById = funcWrapper(async (req, res)=>{
     if(!courseId || !id){
         throw "Invalid path";
     }
-    const isEnrolled = await Enrollments.findOne({course:courseId, student:req.user.id}).select("_id");
-    if(!isEnrolled){
-        throw new ErrorResponse(404, "This page is not exists or Invalid url");
-    }
-    const quiz = await quizModel.findOne({course:courseId,_id:id}).populate("course", "title").populate("instructor", "name");
+    // const isEnrolled = await Enrollments.findOne({course:courseId, student:req.user.id}).select("_id");
+    // if(!isEnrolled){
+    //     throw new ErrorResponse(404, "This page is not exists or Invalid url");
+    // }
+    const quiz = await quizModel.findOne({course:courseId, _id:id}).populate("course", "title").populate("instructor", "name");
     if(!quiz){
         throw new ErrorResponse(404, "This page is not exists or Invalid url");
     }
@@ -87,4 +87,36 @@ export const updateQuiz =funcWrapper(async (req, res) => {
 
         res.status(200).json(new AppResponse(updatedQuiz, "Quiz updated successfully"));  
     }
-) 
+)
+
+export const getCourseQuizes = async (courseId)=>{
+    try{
+        const quizes = await quizModel.aggregate([
+            {
+                $match:{
+                    course:courseId
+                }
+            },
+            {
+                $project:{
+                    title:1,
+                    createdAt:1,
+                    totalQuestions:{
+                        $size:"$questions"
+                    }
+                }
+            },
+            {
+                $sort:{
+                    createdAt:-1
+                }
+            }
+        ])
+        if(!quizes){
+            throw new ErrorResponse(404, "No quizes found");
+        }
+        return quizes;
+    }catch(err){
+        throw err;
+    }
+}

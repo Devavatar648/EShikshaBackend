@@ -2,47 +2,94 @@ import Enrollments from '../models/enrollment.model.js';
 import { AppResponse } from '../util/AppResponse.js';
 import { ErrorResponse } from '../util/ErrorResponse.js';
 import { funcWrapper } from '../util/wraperFunction.js';
+import { getCountCourseAssignmentsAndQuizes } from './course.controller.js';
+import quizResultModel from '../models/quizResult.model.js';
+import assignmentResultModel from '../models/assignmentResult.model.js';
 
-export const enrollment=async(req,res,next)=>{
-    const courseId=req.params.courseId;
-    try{
-        const enroll= await new Enrollments({student:req.user.id, course:courseId}).save();
-        console.log(enroll);
 
-        if(!enroll){
-            throw new ErrorResponse(400,"Something went wrong");
-        }
-        res.status(201).json(new AppResponse(null,`Successfully enrolled!`));
+export const enrollment = funcWrapper(async (req, res) => {
+    const courseId = req.params.courseId;
+    const enroll = await new Enrollments({ student: req.user.id, course: courseId }).save();
+    if (!enroll) {
+        throw new ErrorResponse(400, "Something went wrong");
     }
-    catch(err){
-        next({statusCode:400,message:err.message||err});
-    }
-}
-
-export const showEnrolledCourses=funcWrapper(async(req,res)=>{
-   
-    
-        let queryObj={'student':req.user.id};
-        if(req.params.courseId){
-            queryObj['course']=req.params.courseId;
-        }
-        const enrolledCourse= await Enrollments.find(queryObj).populate("course").populate("student");
-        if(!enrolledCourse){
-            throw new ErrorResponse(404,"NO course found")
-        }
-        res.status(200).json(new AppResponse(enrolledCourse,"Your enrolled Course-"));
+    res.status(201).json(new AppResponse(null, `Successfully enrolled!`));
 })
 
-export const updatedCourseInfo=async(courseId, studentId, updateField, fieldId)=>{
-    try{
-
-        if(updateField=="assignent"){
-            await Enrollments.findOneAndUpdate({course:courseId,student:studentId},{$set:{attendedAssignments:{$push:fieldId}}});
-        }else{
-            await Enrollments.findOneAndUpdate({course:courseId,student:studentId},{$set:{attendedQuizes:{$push:fieldId}}});
+export const showEnrolledCourses = funcWrapper(async (req, res) => {
+    let enrolledCourse = await Enrollments.find({ student: req.user.id }).select("course attendedAssignments attendedQuizes").populate({
+        path: "course",
+        select: "title instructor imageUrl category",
+        populate: {
+            path: "instructor",
+            select: "name"
         }
-    }catch(err){
+    });
+    enrolledCourse = await Promise.all(
+        enrolledCourse.map(async (ec) => {
+            ec = ec.toObject();
+            const total = await getCountCourseAssignmentsAndQuizes(ec.course._id);
+            if(total[0]+total[1]===0){
+                ec['completePercentage'] = 0;
+            }else{
+                ec['completePercentage'] = Math.floor(((ec.attendedAssignments.length+ec.attendedQuizes.length)/(total[0]+total[1]))*100);
+            }
+            return ec;
+        })
+    );
+
+    if (!enrolledCourse) {
+        throw new ErrorResponse(404, "NO course found")
+    }
+    res.status(200).json(new AppResponse(enrolledCourse, "Your enrolled Course-"));
+})
+
+// export const getEnrolledCourse = funcWrapper(async (req, res) => {
+//     const { courseId } = req.params;
+//     const enrolledCourse = await Enrollments.findOne({ student: req.user.id, course: courseId }).populate("course");
+//     if (!enrolledCourse) {
+//         throw new ErrorResponse(404, "No course found");
+//     }
+//     res.status(200).json(new AppResponse(enrolledCourse, "success"));
+// })
+
+export const deleteEnrollment = funcWrapper(async (req, res) => {
+    const courseId = req.params.courseId;
+    const studentId = req.user.id;
+    
+    const deletedEnrollment = await Enrollments.findOneAndDelete({ student: studentId, course: courseId });
+    const deleteQuiz=await quizResultModel.findOneAndDelete({student:studentId, course:courseId});
+    const deleteAssignment=await assignmentResultModel.findOneAndDelete({student:studentId, course:courseId});
+
+    if (!deletedEnrollment) {
+        return next(new ErrorResponse(400, "You are not enrolled in this course."));
+    }
+
+    res.status(200).json(new AppResponse(null, "Successfully unenrolled from the course!"));
+
+    if (!deleteQuiz) {
+        return next(new ErrorResponse(400, "You don't have access."));
+    }
+
+    res.status(200).json(new AppResponse(null, "Successfully deleted the quiz"));
+
+    if (!deleteAssignment) {
+        return next(new ErrorResponse(400, "You don't have access."));
+    }
+
+    res.status(200).json(new AppResponse(null, "Successfully deleted the quiz!"));
+
+})
+
+export const updatedCourseInfo = async (courseId, studentId, updateField, fieldId) => {
+    try {
+        if (updateField == "assignment") {
+            await Enrollments.findOneAndUpdate({ course: courseId, student: studentId }, { $push: { attendedAssignments: fieldId } });
+        } else {
+            await Enrollments.findOneAndUpdate({ course: courseId, student: studentId }, { $push: { attendedQuizes: fieldId  } });
+        }
+    } catch (err) {
         throw err;
     }
-    
+
 }

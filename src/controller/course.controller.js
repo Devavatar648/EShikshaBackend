@@ -6,6 +6,11 @@ import courseModel from "../models/course.model.js";
 import { AppResponse } from "../util/AppResponse.js";
 import { ErrorResponse } from "../util/ErrorResponse.js";
 import { getCourseAssignments } from "./assignment.controller.js";
+import { getCourseQuizes } from "./quiz.controller.js";
+import assignmentModel from "../models/assignment.model.js";
+import quizModel from "../models/quiz.model.js";
+import enrollmentModel from "../models/enrollment.model.js";
+import quizResultModel from "../models/quizResult.model.js";
 
 
 
@@ -37,7 +42,8 @@ export const getCourseById = funcWrapper(async (req, res) => {
         throw new ErrorResponse(404, "No Course Found");
     }
     const assignments = await getCourseAssignments(course._id);
-    const response = {course, assignments}
+    const quizzes = await getCourseQuizes(course._id);
+    const response = {course, assignments, quizzes};
     res.status(200).json(new AppResponse(response, "Course found"));
 })
 
@@ -63,7 +69,7 @@ export const updateCourse = funcWrapper(async (req, res) => {
     const id = req.params.id;
     const course = await courseModel.findOneAndUpdate({ _id: id, instructor: req.user.id }, { $set: req.body }, {
         runValidators: true,
-        new: true,
+        returnDocument: "after",
         context: 'query'
     });
 
@@ -71,7 +77,7 @@ export const updateCourse = funcWrapper(async (req, res) => {
         throw "This course is not exists or created by you";
     }
 
-    res.status(200).json(new AppResponse(course, "Course created successfully."));
+    res.status(200).json(new AppResponse(course, "Course updated successfully."));
 })
 
 
@@ -82,6 +88,43 @@ export const deleteCourse = funcWrapper(async (req, res) => {
     if (course.deletedCount === 0) {
         throw "This course is not exists or created by you";
     }
-    res.status(200).json(course);
+    res.status(200).json(new AppResponse(null,"Course deleted successfully"));
 })
 
+export const getStudentsCourseProgress = funcWrapper(async(req, res)=>{
+    const {courseId} = req.params;
+    const instructorId = req.user.id;
+    const data = await Promise.all([
+        await enrollmentModel.find({course:courseId}).select("-_id -course -__v -updatedAt").populate("student", "name email"),
+        await getCountCourseAssignmentsAndQuizes(courseId),
+        // await quizResultModel.find({instructor:instructorId, course:courseId}).select("-_id obtainMarks quiz").populate("quiz", "totalMarks").sort({obtainMarks:-1})
+    ])
+
+    const response = {
+        students:data[0].map(s=>({
+            completedModule: s.attendedAssignments.length+s.attendedQuizes.length,
+            student:s.student,
+            createdAt: s.createdAt
+        })),
+        totalModules: data[1].reduce((a,b)=>a+b),
+        // quizResult : data[2].map(q=>({
+        //     quizId:q.quiz._id,
+        //     totalMarks: q.quiz.totalMarks,
+        //     obtainMarks: q.obtainMarks
+        // }))
+    }
+    res.status(200).json(new AppResponse(response, "success"));
+})
+
+
+export const getCountCourseAssignmentsAndQuizes = async (courseId)=>{
+    try{
+        const response = await Promise.all([
+            await assignmentModel.countDocuments({course:courseId}),
+            await quizModel.countDocuments({course:courseId})
+        ])
+        return response;
+    }catch(err){
+        console.log(err);
+    }
+}
