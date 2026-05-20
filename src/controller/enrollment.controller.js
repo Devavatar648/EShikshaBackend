@@ -9,11 +9,19 @@ import assignmentResultModel from '../models/assignmentResult.model.js';
 
 export const enrollment = funcWrapper(async (req, res) => {
     const courseId = req.params.courseId;
-    const enroll = await new Enrollments({ student: req.user.id, course: courseId }).save();
+    let enroll = await new Enrollments({ student: req.user.id, course: courseId }).save();
     if (!enroll) {
         throw new ErrorResponse(400, "Something went wrong");
     }
-    res.status(201).json(new AppResponse(null, `Successfully enrolled!`));
+    enroll = await enroll.populate({
+        path: "course",
+        select: "title instructor imageUrl category",
+        populate: {
+            path: "instructor",
+            select: "name"
+        }
+    });
+    res.status(201).json(new AppResponse({_id:enroll._id, course:enroll.course, attendedAssignments:enroll.attendedAssignments, attendedQuizes:enroll.attendedQuizes, completePercentage:0}, `Successfully enrolled!`));
 })
 
 export const showEnrolledCourses = funcWrapper(async (req, res) => {
@@ -24,7 +32,7 @@ export const showEnrolledCourses = funcWrapper(async (req, res) => {
             path: "instructor",
             select: "name"
         }
-    });
+    }).sort({createdAt:-1});
     enrolledCourse = await Promise.all(
         enrolledCourse.map(async (ec) => {
             ec = ec.toObject();

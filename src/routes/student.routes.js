@@ -8,6 +8,7 @@ import { enrollment, showEnrolledCourses, deleteEnrollment } from '../controller
 import { getQuizById } from '../controller/quiz.controller.js';
 import { addQuizResult } from '../controller/quizResult.controller.js';
 import { getStudnetAnnouncements } from '../controller/announcements.controller.js';
+import { getStudentDashboard } from '../controller/user.controller.js';
 
 
 const router = express.Router();
@@ -18,6 +19,8 @@ const uploading = multer({
     limits: { fileSize: 5 * 1024 * 1024 } // 5mb limit
 });
 
+router.route("/dashboard")
+    .get( getStudentDashboard )
 
 router.route("/course")
     .get( showEnrolledCourses )

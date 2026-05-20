@@ -43,7 +43,8 @@ export const getCourseById = funcWrapper(async (req, res) => {
     }
     const assignments = await getCourseAssignments(course._id);
     const quizzes = await getCourseQuizes(course._id);
-    const response = {course, assignments, quizzes};
+    const totalEnrollments = await enrollmentModel.countDocuments({course:course._id});
+    const response = {course, assignments, quizzes, totalEnrollments};
     res.status(200).json(new AppResponse(response, "Course found"));
 })
 
@@ -84,7 +85,7 @@ export const updateCourse = funcWrapper(async (req, res) => {
 export const deleteCourse = funcWrapper(async (req, res) => {
     const id = req.params.id;
     const course = await courseModel.deleteOne({ _id: id, instructor: req.user.id });
-    console.log(course);
+    // console.log(course);
     if (course.deletedCount === 0) {
         throw "This course is not exists or created by you";
     }

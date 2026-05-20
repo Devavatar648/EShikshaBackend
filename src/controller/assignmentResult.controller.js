@@ -20,7 +20,7 @@ export const addResult = funcWrapper(async (req, res) => {
     if (!course) {
         throw new ErrorResponse(404, "Target course not found");
     }
-    console.log(course);
+    // console.log(course);
     const fileId = await uploadAssignmentFile(req);
 
     const result = await assignmentResultModel.create({
@@ -41,7 +41,7 @@ export const searchResults = funcWrapper(async (req, res) => {
 
     const { courseId, assignmentId } = req.params;
     let instructorId = req.user.id;
-    console.log(courseId, assignmentId, instructorId);
+    // console.log(courseId, assignmentId, instructorId);
 
     //   const result=await assignmentResultModel.find({course:courseId,
     //     instructor:instructorId,
@@ -82,7 +82,7 @@ if (!result) {
     throw new ErrorResponse(404, "not found");
 }
 
-console.log(result);
+// console.log(result);
 res.status(200).json(new AppResponse(result, "found"));
 
 })
