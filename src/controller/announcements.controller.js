@@ -29,3 +29,14 @@ export const deleteAnnouncement = funcWrapper(async (req, res) => {
     
     res.status(200).json(new AppResponse(null, "Announcement deleted successfully"));
 });
+
+export const getAllAnnouncements = funcWrapper(async (req, res) => {
+   
+    const announcements = await announcementModel.find().sort({ createdAt: -1 });
+    
+    if (!announcements) {
+        return res.status(200).json(new AppResponse([], "No announcements found"));
+    }
+    
+    res.status(200).json(new AppResponse(announcements, "Announcements fetched successfully"));
+});
