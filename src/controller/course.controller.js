@@ -15,7 +15,7 @@ import quizModel from "../models/quiz.model.js";
 // public
 export const getCourses = funcWrapper(async (req, res) => {
     const { instructor, title } = req.query;
-    let pageSize = req.query.pageSize || 5;
+    let pageSize = req.query.pageSize || 6;
     let pageNumber = req.query.pageNumber || 1;
     let queryObj = {};
     if(instructor) {
