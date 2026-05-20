@@ -8,6 +8,7 @@ import { addQuiz, deleteQuiz, updateQuiz, getQuizes } from '../controller/quiz.c
 import { downloadAssignmentFile } from '../controller/fileHandle.controller.js';
 import { deleteResult, giveMarks, searchResults } from '../controller/assignmentResult.controller.js';
 import { getInstructorDashboard } from '../controller/user.controller.js';
+import { getInstructorAnnouncements, publishAnnocement } from '../controller/announcements.controller.js';
 
 const router = express.Router();
 
@@ -61,6 +62,10 @@ router.route("/course/:courseId/quiz")
 router.route("/course/:courseId/quiz/:id")
     .delete(deleteQuiz)
     .patch(updateQuiz);
+
+router.route("/course/:courseId/announcement")
+    .get( getInstructorAnnouncements )
+    .post( publishAnnocement )
 
 
 export default router;

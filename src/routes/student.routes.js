@@ -7,6 +7,7 @@ import multer from 'multer';
 import { enrollment, showEnrolledCourses, deleteEnrollment } from '../controller/enrollment.controller.js';
 import { getQuizById } from '../controller/quiz.controller.js';
 import { addQuizResult } from '../controller/quizResult.controller.js';
+import { getStudnetAnnouncements } from '../controller/announcements.controller.js';
 
 
 const router = express.Router();
@@ -17,30 +18,15 @@ const uploading = multer({
     limits: { fileSize: 5 * 1024 * 1024 } // 5mb limit
 });
 
-// router.get("/course", getCourseById);
+
 router.route("/course")
     .get( showEnrolledCourses )
-
-// router.route("/course/:courseId")
-//     .get( getEnrolledCourse )
 
 
 router.route("/course/:courseId/enroll")
     .post(enrollment)
     .delete( deleteEnrollment )
 
-
-
-
-// router.route("/course/:courseId/assignment/:assignmentId/result")
-// .post(uploading.single('myFile'),addResult)
-// .get(searchResults)
-// .delete(deleteResult)
-// .patch(giveMarks);
-
-
-
-// This route handles operations relative to a specific assignment item
 router.route("/course/:courseId/assignment/:assignmentId/result")
     .post(uploading.single('myFile'),addResult)                                          // Instructor views all submissions                           // Student deletes their submission
 
@@ -51,6 +37,9 @@ router.route("/course/:courseId/assignment/download/:id").get(downloadAssignment
 router.route("/course/:courseId/quiz/:id")
     .post( addQuizResult )
     .get( getQuizById )
+
+router.route("/announcements")
+    .get( getStudnetAnnouncements )
     
 
 export default router;

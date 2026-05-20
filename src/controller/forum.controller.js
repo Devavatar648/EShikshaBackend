@@ -4,15 +4,7 @@ import { funcWrapper } from "../util/wraperFunction.js";
 
 // 1. CREATE A NEW POST
 export const postForum = funcWrapper(async (req, res) => {
-    
-    const author = req.body.users || "Anonymous User";
-
-    const forums = await new forumModel({
-        title: req.body.title,
-        description: req.body.description,
-        users: author
-    }).save();
-    
+    const forums = await new forumModel(req.body).save();
     if (!forums) {
         throw "internal server error";
     }

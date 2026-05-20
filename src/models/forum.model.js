@@ -1,9 +1,8 @@
 import mongoose from 'mongoose';
 
 const forumSchema = new mongoose.Schema({
-  
   users: {
-    type: mongoose.Schema.Types.Mixed,
+    type: String,
     required: true,
     default: "Anonymous"
   },
@@ -15,12 +14,11 @@ const forumSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  
   replies: [
     {
       user: { type: String, default: "Anonymous" },
       reply: { type: String, required: true },
-      date: { type: String }
+      date: { type: Date, default: Date.now }
     }
   ]
 }, {
