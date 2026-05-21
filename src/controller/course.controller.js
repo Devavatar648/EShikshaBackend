@@ -37,14 +37,21 @@ export const getCourses = funcWrapper(async (req, res) => {
 
 export const getCourseById = funcWrapper(async (req, res) => {
     const { courseId } = req.params;
+    const { studentId } = req.query;
+    let isEnrolled = false;
     const course = await courseModel.findById(courseId).populate("instructor", "name email");
     if (!course) {
         throw new ErrorResponse(404, "No Course Found");
     }
-    const assignments = await getCourseAssignments(course._id);
-    const quizzes = await getCourseQuizes(course._id);
-    const totalEnrollments = await enrollmentModel.countDocuments({course:course._id});
-    const response = {course, assignments, quizzes, totalEnrollments};
+    if(studentId){
+        isEnrolled = (await enrollmentModel.countDocuments({course:course._id, student:studentId})>0?true:false);
+    }
+    const [assignments, quizzes, totalEnrollments] = await Promise.all([
+        getCourseAssignments(course._id),
+        getCourseQuizes(course._id),
+        enrollmentModel.countDocuments({course:course._id})
+    ])
+    const response = {course, assignments, quizzes, totalEnrollments, isEnrolled};
     res.status(200).json(new AppResponse(response, "Course found"));
 })
 
@@ -55,14 +62,11 @@ export const createCourse = funcWrapper(async (req, res) => {
     if (!valid.isEmpty()) {
         throw valid.array();
     }
-
-    let course = new Course({
+    let course = await new Course({
         ...req.body,
         instructor: new Types.ObjectId(req.user.id)
-    });
-    course = await course.save();
+    }).save();
     res.status(201).json(new AppResponse(course, "Course created successfully."));
-
 })
 
 
@@ -85,7 +89,6 @@ export const updateCourse = funcWrapper(async (req, res) => {
 export const deleteCourse = funcWrapper(async (req, res) => {
     const id = req.params.id;
     const course = await courseModel.deleteOne({ _id: id, instructor: req.user.id });
-    // console.log(course);
     if (course.deletedCount === 0) {
         throw "This course is not exists or created by you";
     }
@@ -94,11 +97,9 @@ export const deleteCourse = funcWrapper(async (req, res) => {
 
 export const getStudentsCourseProgress = funcWrapper(async(req, res)=>{
     const {courseId} = req.params;
-    const instructorId = req.user.id;
     const data = await Promise.all([
-        await enrollmentModel.find({course:courseId}).select("-_id -course -__v -updatedAt").populate("student", "name email"),
-        await getCountCourseAssignmentsAndQuizes(courseId),
-        // await quizResultModel.find({instructor:instructorId, course:courseId}).select("-_id obtainMarks quiz").populate("quiz", "totalMarks").sort({obtainMarks:-1})
+        enrollmentModel.find({course:courseId}).select("-_id -course -__v -updatedAt").populate("student", "name email"),
+        getCountCourseAssignmentsAndQuizes(courseId),
     ])
 
     const response = {
@@ -107,12 +108,7 @@ export const getStudentsCourseProgress = funcWrapper(async(req, res)=>{
             student:s.student,
             createdAt: s.createdAt
         })),
-        totalModules: data[1].reduce((a,b)=>a+b),
-        // quizResult : data[2].map(q=>({
-        //     quizId:q.quiz._id,
-        //     totalMarks: q.quiz.totalMarks,
-        //     obtainMarks: q.obtainMarks
-        // }))
+        totalModules: data[1].reduce((a,b)=>a+b)
     }
     res.status(200).json(new AppResponse(response, "success"));
 })
@@ -121,22 +117,47 @@ export const getStudentsCourseProgress = funcWrapper(async(req, res)=>{
 export const getCountCourseAssignmentsAndQuizes = async (courseId)=>{
     try{
         const response = await Promise.all([
-            await assignmentModel.countDocuments({course:courseId}),
-            await quizModel.countDocuments({course:courseId})
+            assignmentModel.countDocuments({course:courseId}),
+            quizModel.countDocuments({course:courseId})
         ])
         return response;
     }catch(err){
-        console.log(err);
+        throw err;
     }
 }
 
-export const submitReview=funcWrapper(async(req,res)=>{
-            const courseId=req.params;
-            const {rating,feedback}=req.body;
-            if(!rating && !feedback){
-                throw "Give rating and a review"
-            }else{
-                const rating=await courseModel.findOneAndUpdate({_id:courseId},{$set:{rating:rating,feedback:feedback}},{new:true, runValidators:true})
+export const submitReview = funcWrapper( async(req, res)=>{
+    const courseId = req.params;
+    const { rating, feedback } = req.body;
+    if(!rating || !feedback){
+        throw "Give rating and a review"
+    }
+    const ratFeedback = await courseModel.aggregate([
+        {
+            $match:{
+                _id: courseId
             }
-            res.status(200).json(new AppResponse((rating,feedback),"Thanks for the Review"))
+        },
+        {
+            $set:{
+                "rating.totalUsers": {$inc:1},
+                "rating.average": {
+                    $multiply:[
+                        {
+                            $divide:[
+                                {
+                                    $add:[
+                                        
+                                    ]
+                                }
+                            ]
+                        }, 
+                        100
+                    ]
+                }
+            }
+        }
+    ])
+    
+    res.status(200).json(new AppResponse(ratFeedback,"Thanks for the Review"))
 })

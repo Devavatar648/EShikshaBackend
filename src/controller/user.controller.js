@@ -6,7 +6,6 @@ import { AppResponse } from "../util/AppResponse.js";
 import { ErrorResponse } from "../util/ErrorResponse.js";
 import { funcWrapper } from "../util/wraperFunction.js";
 import crypto from 'crypto';
-import { getCountCourseAssignmentsAndQuizes } from "./course.controller.js";
 import quizResultModel from "../models/quizResult.model.js";
 
 // User
