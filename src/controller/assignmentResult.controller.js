@@ -123,7 +123,7 @@ export const giveMarks = funcWrapper(async (req, res) => {
 
     const updated = await assignmentResultModel.findOneAndUpdate(
         { _id: resultId, instructor: instructorId },
-        { $set: { marks: req.body.marks } }, // Target precise update properties explicitly
+        { $set: { marks: req.body.marks } }, 
         { new: true, runValidators: true }
     ).populate('student', "name email");
 
@@ -143,12 +143,16 @@ export const getMarks = funcWrapper(async (req, res) => {
 
     const studentMark = await assignmentResultModel.find(
         { course: courseId, student: studentId },
-    ).select("-_id course marks");
+    ).select("-_id assignment marks");
 
     if (!studentMark) {
         return new ErrorResponse(404, "no marks given");
     }
-    res.status(200).json(new AppResponse(studentMark, "marks received"));
+    let assi = {};
+    studentMark.forEach(a=>{
+        assi[a.assignment]=a.marks;
+    })
+    res.status(200).json(new AppResponse(assi, "marks received"));
 })
 
 

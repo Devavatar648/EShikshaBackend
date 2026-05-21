@@ -23,7 +23,7 @@ router.route("/dashboard")
 
 //assignments
 router.route("/course/:courseId/assignment")
-    .post(assignmentValidators, uploading.single('myFile'), addAssignment)
+    .post(uploading.single('myFile'),assignmentValidators, addAssignment)
     .get(searchAssignment);
 
 router.route("/course/:courseId/assignment/:id")
@@ -42,7 +42,7 @@ router.route("/course/:courseId/report")
 
 
 // Decoupled from the parent composite route to target the submission directly by its individual ID
-router.route("assignment-result/:resultId")
+router.route("/course/:courseId/assignment-result/:resultId")
     .patch(giveMarks)                                // Instructor updates marks
     .delete(deleteResult);
 
