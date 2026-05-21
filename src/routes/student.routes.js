@@ -1,8 +1,7 @@
 import express from 'express';
-import { getCourseById } from '../controller/course.controller.js';
+import { submitReview } from '../controller/course.controller.js';
 import { downloadAssignmentFile } from '../controller/fileHandle.controller.js';
-import { addResult, deleteResult, giveMarks, searchResults } from '../controller/assignmentResult.controller.js';
-import { deleteAssignment } from '../controller/assignment.controller.js';
+import { addResult } from '../controller/assignmentResult.controller.js';
 import multer from 'multer';
 import { enrollment, showEnrolledCourses, deleteEnrollment } from '../controller/enrollment.controller.js';
 import { getQuizById } from '../controller/quiz.controller.js';
@@ -25,17 +24,19 @@ router.route("/dashboard")
 router.route("/course")
     .get( showEnrolledCourses )
 
+router.route("/course/:courseId/review")
+    .post( submitReview )
 
 router.route("/course/:courseId/enroll")
     .post(enrollment)
     .delete( deleteEnrollment )
 
 router.route("/course/:courseId/assignment/:assignmentId/result")
-    .post(uploading.single('myFile'),addResult)                                          // Instructor views all submissions                           // Student deletes their submission
-
+    .post(uploading.single('myFile'),addResult)
 
 //download
-router.route("/course/:courseId/assignment/download/:id").get(downloadAssignmentFile);
+router.route("/course/:courseId/assignment/download/:id")
+    .get(downloadAssignmentFile);
 
 router.route("/course/:courseId/quiz/:id")
     .post( addQuizResult )

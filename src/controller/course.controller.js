@@ -10,9 +10,6 @@ import { getCourseQuizes } from "./quiz.controller.js";
 import assignmentModel from "../models/assignment.model.js";
 import quizModel from "../models/quiz.model.js";
 import enrollmentModel from "../models/enrollment.model.js";
-import quizResultModel from "../models/quizResult.model.js";
-
-
 
 // public
 export const getCourses = funcWrapper(async (req, res) => {
@@ -26,12 +23,35 @@ export const getCourses = funcWrapper(async (req, res) => {
     if (title) {
         queryObj['title'] = { $regex:title, $options:'i' };
     }
-    const courses = await courseModel.find(queryObj).sort({title:1}).populate("instructor", "name")
-                        .skip((pageNumber-1)*pageSize).limit(pageSize);
+    const courses = await courseModel.find(queryObj)
+                                    .sort({title:1})
+                                    .populate("instructor", "name")     
+                                    .skip((pageNumber-1)*pageSize)
+                                    .limit(pageSize)
+                                    .lean();
+
+    const courseEnrollments = await enrollmentModel.aggregate([
+        {
+            $match:{
+                course: {$in:courses.map(c=>c._id)}
+            }
+        },
+        {
+            $group:{
+                _id:"$course",
+                enrolled:{$sum:1}
+            }
+        }
+    ])
+
+    const response = courses.map(c=>{
+        const ec = courseEnrollments.find(en=>en._id.toString()==c._id.toString());
+        return {...c, ...ec};
+    })
     if (!courses) {
         throw new ErrorResponse(404, "No Course Found");
     }
-    res.status(200).json(new AppResponse(courses, "Course found"));
+    res.status(200).json(new AppResponse(response, "Course found"));
 })
 
 
@@ -127,37 +147,34 @@ export const getCountCourseAssignmentsAndQuizes = async (courseId)=>{
 }
 
 export const submitReview = funcWrapper( async(req, res)=>{
-    const courseId = req.params;
-    const { rating, feedback } = req.body;
+    const { courseId } = req.params;
+    const { rating, name, feedback } = req.body;
     if(!rating || !feedback){
         throw "Give rating and a review"
     }
-    const ratFeedback = await courseModel.aggregate([
+    const ratFeedback = await courseModel.findOne({_id:courseId});
+    if(!ratFeedback){
+        throw "No course Available";
+    }
+    const updatedRating = parseFloat((((ratFeedback.rating.average*ratFeedback.rating.totalUsers)+rating)/(ratFeedback.rating.totalUsers+1)).toFixed(2));
+    const totalUser = ratFeedback.rating.totalUsers+1;
+
+    const result = await courseModel.findOneAndUpdate(
+        {_id:courseId}, 
         {
-            $match:{
-                _id: courseId
+            $set:{
+                "rating.totalUsers":totalUser,
+                "rating.average": updatedRating
+            },
+            $push:{
+                feedback:{name:name, message:feedback}
             }
         },
         {
-            $set:{
-                "rating.totalUsers": {$inc:1},
-                "rating.average": {
-                    $multiply:[
-                        {
-                            $divide:[
-                                {
-                                    $add:[
-                                        
-                                    ]
-                                }
-                            ]
-                        }, 
-                        100
-                    ]
-                }
-            }
+            returnDocument:'after',
+            runValidators: true
         }
-    ])
+    );
     
-    res.status(200).json(new AppResponse(ratFeedback,"Thanks for the Review"))
+    res.status(200).json(new AppResponse(result,"Thanks for the Review"))
 })
