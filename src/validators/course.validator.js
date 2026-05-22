@@ -3,7 +3,7 @@ import  {body} from 'express-validator';
 const validSchema = [
     body('title')
     .notEmpty().withMessage("Name is required")
-    .isLength({max:30}).withMessage("Maximum length is 30"),
+    .isLength({min:5}).withMessage("Minimum title length is 5"),
 
     body('category')
     .notEmpty().withMessage("Category is required")
@@ -11,7 +11,7 @@ const validSchema = [
 
     body('description')
     .notEmpty().withMessage("Description is needed")
-    .isLength({min:100}).withMessage("At least 100 characters"),
+    .isLength({min:100}).withMessage("At least 100 characters in description"),
 
     body('instructor')
     .custom((_, {req})=>{
