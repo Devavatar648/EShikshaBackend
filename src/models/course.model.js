@@ -47,6 +47,7 @@ const courseSchema=new mongoose.Schema({
 })
 
 courseSchema.pre("save",async function(){
+    
     const instructor= await userModel.findById(new mongoose.Types.ObjectId(this.instructor));
     if(!instructor) throw "invalid instructor";
 

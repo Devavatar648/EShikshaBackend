@@ -59,7 +59,7 @@ export const searchResults = funcWrapper(async (req, res) => {
         },
         {
             $lookup: {
-                from: "users",            // collection name for students
+                from: "users",                 // collection name for students
                 localField: "student",       // field in assignmentResultModel
                 foreignField: "_id",         // field in students collection
                 as: "student"
