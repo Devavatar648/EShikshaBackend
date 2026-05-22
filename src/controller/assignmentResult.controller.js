@@ -111,3 +111,24 @@ export const giveMarks = funcWrapper(async (req, res) => {
     updatedCourseInfo(courseId, updated.student, 'assignment', updated.assignment);
     res.status(200).json(new AppResponse(null, "marks Updated"));
 })
+
+
+export const getMarks = funcWrapper(async (req, res) => {
+    const { courseId } = req.params;
+    const studentId = req.user.id;
+
+    const studentMark = await assignmentResultModel.find(
+        { course: courseId, student: studentId },
+    ).select("-_id assignment marks");
+
+    if (!studentMark) {
+        return new ErrorResponse(404, "no marks given");
+    }
+    let assi = {};
+    studentMark.forEach(a=>{
+        assi[a.assignment]=a.marks;
+    })
+    res.status(200).json(new AppResponse(assi, "marks received"));
+})
+
+

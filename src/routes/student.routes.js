@@ -34,6 +34,9 @@ router.route("/course/:courseId/enroll")
 router.route("/course/:courseId/assignment/:assignmentId/result")
     .post(uploading.single('myFile'),addResult)
 
+router.route("/course/:courseId/assignment-result")
+        .get(getMarks);                              
+        
 //download
 router.route("/course/:courseId/assignment/download/:id")
     .get(downloadAssignmentFile);

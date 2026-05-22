@@ -5,10 +5,17 @@ import { AppResponse } from '../util/AppResponse.js';
 import { uploadAssignmentFile } from './fileHandle.controller.js';
 import { ErrorResponse } from '../util/ErrorResponse.js';
 import courseModel from '../models/course.model.js';
+import { validationResult } from 'express-validator';
 
 
 export const addAssignment = funcWrapper(async (req, res) => {
     // Validation for Multer: check if file exists
+
+    const errors = validationResult(req);
+   
+    if(!errors.isEmpty()){
+        throw errors.array();
+    }
     const { courseId } = req.params;
 
     if (!req.file) {
@@ -69,6 +76,7 @@ export const updateAssignment = funcWrapper(async (req, res) => {
 
 // For all registered users
 export const searchAssignment = funcWrapper(async (req, res) => {
+    
     let { instructorId, courseId } = req.query;
     if(!courseId){
         courseId = req.params.courseId;
