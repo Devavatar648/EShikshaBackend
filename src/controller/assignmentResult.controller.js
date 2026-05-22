@@ -13,7 +13,7 @@ export const addResult = funcWrapper(async (req, res) => {
     const studentId = req.user.id;
 
     if (!req.file) {
-        throw new Error("Please upload a PDF file using the 'myFile' key.");
+        throw new Error("Please upload a PDF file.");
     }
     const course = await courseModel.findById(courseId);
     if (!course) {

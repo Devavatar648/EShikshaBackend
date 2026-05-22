@@ -9,7 +9,7 @@ const AssignmentResultSchema = new mongoose.Schema({
     },
     instructor:{
         type: mongoose.Types.ObjectId,
-        ref:'user',
+        ref:'users',
         required:true
     },
     course: {

@@ -1,7 +1,7 @@
 import express from 'express';
 import { submitReview } from '../controller/course.controller.js';
 import { downloadAssignmentFile } from '../controller/fileHandle.controller.js';
-import { addResult } from '../controller/assignmentResult.controller.js';
+import { addResult, getMarks } from '../controller/assignmentResult.controller.js';
 import multer from 'multer';
 import { enrollment, showEnrolledCourses, deleteEnrollment } from '../controller/enrollment.controller.js';
 import { getQuizById } from '../controller/quiz.controller.js';
