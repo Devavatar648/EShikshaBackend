@@ -32,10 +32,10 @@ router.route("/course/:courseId/enroll")
     .delete( deleteEnrollment )
 
 router.route("/course/:courseId/assignment/:assignmentId/result")
-    .post(uploading.single('myFile'),addResult)
+    .post( uploading.single('myFile'), addResult )
 
 router.route("/course/:courseId/assignment-result")
-        .get(getMarks);                              
+        .get( getMarks );                              
         
 //download
 router.route("/course/:courseId/assignment/download/:id")
