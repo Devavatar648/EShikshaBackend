@@ -19,20 +19,23 @@ export const getAllUser = funcWrapper(async (req, res)=>{
             {email: {$regex:req.query.searchVal, $options:'i'}},
         ]
     }
-    const users = await UserModel.find(query).select("-password").skip((pageNumber-1)*pageLimit).limit(pageLimit);
+    // const users = await UserModel.find(query).select("-password").sort({name:1}).skip((pageNumber-1)*pageLimit).limit(pageLimit);
+    // const totalUsers = await UserModel.countDocuments({role:{$ne:"ADMIN"}})
+    const [users, totalUsers] = await Promise.all([
+        UserModel.find(query).select("-password").sort({name:1}).skip((pageNumber-1)*pageLimit).limit(pageLimit),
+        UserModel.countDocuments({role:{$ne:"ADMIN"}})
+    ])
+    // console.log(totalUsers);
     if(!users){
         throw "No users found";
     }
-    res.status(200).json(new AppResponse(users, "Success"));
+    res.status(200).json(new AppResponse({users, totalUsers}, "Success"));
 })
 
 export const updateUser = funcWrapper(async (req, res)=>{
     const userId = req.params.userId;
-    const {email, name} = req.body;
-    let updatedDet = {};
-    if(email) updatedDet['email']=email;
-    if(name) updatedDet['name']=name;
-    const user = await UserModel.findByIdAndUpdate({_id:userId}, {$set:updatedDet}, {
+    const { role } = req.body;
+    const user = await UserModel.findByIdAndUpdate({_id:userId}, {$set:{role}}, {
         runValidators:true,
     })
     if(!user) throw "Something Went Wrong";
@@ -68,7 +71,7 @@ export const getDashboard = funcWrapper(async (req, res)=>{
             },
             {
                 $sort:{
-                    role:1
+                    _id:-1
                 }
             }
         ]),
