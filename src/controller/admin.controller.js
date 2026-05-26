@@ -133,3 +133,11 @@ export const getDashboard = funcWrapper(async (req, res)=>{
     ])
     res.status(200).json(new AppResponse({userDetails:{totalUser:data[0], monthlyEnrollments:data[1]}, courseDetails:{topCourses:data[2], totalCourses:data[3]}}));
 })
+
+export const addInstructor = funcWrapper(async (req, res)=>{
+    const {name, email} = req.body;
+    let password = name.split(" ")[0]+"@1234";
+    password = password.charAt(0).toUpperCase()+password.slice(1);
+    const user = await new UserModel({name, email, password, role:"INSTRUCTOR"}).save();
+    res.status(201).json(new AppResponse(user,"Successfully Added"));
+})
