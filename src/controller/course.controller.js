@@ -16,6 +16,7 @@ export const getCourses = funcWrapper(async (req, res) => {
     const { instructor, title } = req.query;
     let pageSize = req.query.pageSize || 6;
     let pageNumber = req.query.pageNumber || 1;
+    
     let queryObj = {};
     if(instructor) {
         queryObj['instructor'] = instructor;
@@ -23,6 +24,7 @@ export const getCourses = funcWrapper(async (req, res) => {
     if (title) {
         queryObj['title'] = { $regex:title, $options:'i' };
     }
+
     const courses = await courseModel.find(queryObj)
                                     .sort({title:1})
                                     .populate("instructor", "name")     
@@ -63,14 +65,17 @@ export const getCourseById = funcWrapper(async (req, res) => {
     if (!course) {
         throw new ErrorResponse(404, "No Course Found");
     }
+    
     if(studentId){
         isEnrolled = (await enrollmentModel.countDocuments({course:course._id, student:studentId})>0?true:false);
     }
+
     const [assignments, quizzes, totalEnrollments] = await Promise.all([
         getCourseAssignments(course._id),
         getCourseQuizes(course._id),
         enrollmentModel.countDocuments({course:course._id})
     ])
+
     const response = {course, assignments, quizzes, totalEnrollments, isEnrolled};
     res.status(200).json(new AppResponse(response, "Course found"));
 })
@@ -79,9 +84,11 @@ export const getCourseById = funcWrapper(async (req, res) => {
 // Protected
 export const createCourse = funcWrapper(async (req, res) => {
     const valid = validSchema.validationResult( req );
+    
     if (!valid.isEmpty()) {
         throw valid.array();
     }
+
     let course = await new Course({
         ...req.body,
         instructor: new Types.ObjectId(req.user.id)
@@ -92,7 +99,9 @@ export const createCourse = funcWrapper(async (req, res) => {
 
 export const updateCourse = funcWrapper(async (req, res) => {
     const id = req.params.id;
-    const course = await courseModel.findOneAndUpdate({ _id: id, instructor: req.user.id }, { $set: req.body }, {
+    
+    const course = await courseModel.findOneAndUpdate({ _id: id, instructor: req.user.id }, 
+        { $set: req.body }, {
         runValidators: true,
         returnDocument: "after",
         context: 'query'
@@ -117,6 +126,7 @@ export const deleteCourse = funcWrapper(async (req, res) => {
 
 export const getStudentsCourseProgress = funcWrapper(async(req, res)=>{
     const {courseId} = req.params;
+    
     const data = await Promise.all([
         enrollmentModel.find({course:courseId}).select("-_id -course -__v -updatedAt").populate("student", "name email"),
         getCountCourseAssignmentsAndQuizes(courseId),
@@ -147,15 +157,19 @@ export const getCountCourseAssignmentsAndQuizes = async (courseId)=>{
 }
 
 export const submitReview = funcWrapper( async(req, res)=>{
+
     const { courseId } = req.params;
     const { rating, name, feedback } = req.body;
+
     if(!rating || !feedback){
         throw "Give rating and a review"
     }
+
     const ratFeedback = await courseModel.findOne({_id:courseId});
     if(!ratFeedback){
         throw "No course Available";
     }
+    
     const updatedRating = parseFloat((((ratFeedback.rating.average*ratFeedback.rating.totalUsers)+rating)/(ratFeedback.rating.totalUsers+1)).toFixed(2));
     const totalUser = ratFeedback.rating.totalUsers+1;
 

@@ -75,22 +75,22 @@ export const searchResults = funcWrapper(async (req, res) => {
 })
 
 
-export const deleteResult = funcWrapper(async (req, res) => {
-    const { resultId } = req.params;
-    const instructorId = req.user.id;
-    const deleted = await assignmentResultModel.findOneAndDelete({
-        _id: resultId,
-        instructor: instructorId
-    });
-    if (!deleted) {
-        return new ErrorResponse(404, "problem while deleting");
-    }
-    const filecount = await assignmentResultModel.countDocuments({ file: deleted.file });
-    if (filecount === 0) {
-        await FileModel.deleteOne({ _id: deleted.file });
-    }
-    res.status(200).json(new AppResponse(deleted, "Assignment Deleted"));
-})
+// export const deleteResult = funcWrapper(async (req, res) => {
+//     const { resultId } = req.params;
+//     const instructorId = req.user.id;
+//     const deleted = await assignmentResultModel.findOneAndDelete({
+//         _id: resultId,
+//         instructor: instructorId
+//     });
+//     if (!deleted) {
+//         return new ErrorResponse(404, "problem while deleting");
+//     }
+//     const filecount = await assignmentResultModel.countDocuments({ file: deleted.file });
+//     if (filecount === 0) {
+//         await FileModel.deleteOne({ _id: deleted.file });
+//     }
+//     res.status(200).json(new AppResponse(deleted, "Assignment Deleted"));
+// })
 
 
 export const giveMarks = funcWrapper(async (req, res) => {
@@ -106,8 +106,9 @@ export const giveMarks = funcWrapper(async (req, res) => {
         { new: true, runValidators: true }
     ).populate('student', "name email");
     if (!updated) {
-        return new ErrorResponse(404, "problem updating marks");
+        throw new ErrorResponse(404, "problem updating marks");
     }
+    
     updatedCourseInfo(courseId, updated.student, 'assignment', updated.assignment);
     res.status(200).json(new AppResponse(null, "marks Updated"));
 })
@@ -122,7 +123,7 @@ export const getMarks = funcWrapper(async (req, res) => {
     ).select("-_id assignment marks");
 
     if (!studentMark) {
-        return new ErrorResponse(404, "no marks given");
+        throw new ErrorResponse(404, "no marks given");
     }
     let assi = {};
     studentMark.forEach(a=>{

@@ -8,6 +8,7 @@ export const funcWrapper = (func) => async (req, res, next)=>{
         if(err instanceof ErrorResponse){
             return next(err);
         }
+        
         next(new ErrorResponse(400, err.message||err));
     }
 }

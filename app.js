@@ -20,7 +20,7 @@ env.config();
 const app = express();
 
 app.use(cors({
-  origin: 'http://localhost:4200', // Your Angular URL
+  origin: process.env.ORIGIN_URL, // Your Angular URL
   exposedHeaders: ['Content-Disposition', 'Content-Type']
 }));
 
@@ -28,7 +28,7 @@ app.use(cors({
 app.use( express.json() );
 app.use( express.urlencoded( { extended:true } ) );
 //app.use( cors( { origin: process.env.ORIGIN_URL } ) );
-app.use(cors({ origin: '*' }));
+// app.use(cors({ origin: '*' }));
 
 
 // public api endpoints

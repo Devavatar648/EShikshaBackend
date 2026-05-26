@@ -1,15 +1,15 @@
 import { AppResponse } from "../util/AppResponse.js";
 import UserModel from "../models/user.model.js";
 import { funcWrapper } from "../util/wraperFunction.js";
-import userModel from "../models/user.model.js";
 import courseModel from "../models/course.model.js";
 
 export const getAllUser = funcWrapper(async (req, res)=>{
     let {pageNumber, pageLimit} = req.query;
     pageLimit = pageLimit||5;
     pageNumber = pageNumber||1;
-
+    //$ne
     let query = {role:{$not:{$in:"ADMIN"}}};
+
     if(req.query.role){
         query['role']=req.query.role;
     }
@@ -19,7 +19,11 @@ export const getAllUser = funcWrapper(async (req, res)=>{
             {email: {$regex:req.query.searchVal, $options:'i'}},
         ]
     }
-    const users = await UserModel.find(query).select("-password").skip((pageNumber-1)*pageLimit).limit(pageLimit);
+
+
+    const users = await UserModel.find(query).select("-password")
+    .skip((pageNumber-1)*pageLimit).limit(pageLimit);
+
     if(!users){
         throw "No users found";
     }
@@ -30,8 +34,10 @@ export const updateUser = funcWrapper(async (req, res)=>{
     const userId = req.params.userId;
     const {email, name} = req.body;
     let updatedDet = {};
+
     if(email) updatedDet['email']=email;
     if(name) updatedDet['name']=name;
+
     const user = await UserModel.findByIdAndUpdate({_id:userId}, {$set:updatedDet}, {
         runValidators:true,
     })
@@ -52,7 +58,7 @@ export const getDashboard = funcWrapper(async (req, res)=>{
     fiveMonthAgoDate.setHours(0,0,0,0);
 
     const data = await Promise.all([
-        userModel.aggregate([
+        UserModel.aggregate([
             {
                 $match:{
                     role: {
@@ -72,7 +78,7 @@ export const getDashboard = funcWrapper(async (req, res)=>{
                 }
             }
         ]),
-        userModel.aggregate([
+        UserModel.aggregate([
             {
                 $match:{
                     createdAt: {

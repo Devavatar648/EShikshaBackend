@@ -8,6 +8,8 @@ import { Types } from 'mongoose';
 
 export const addQuiz = funcWrapper( async (req, res) => {
     const { questions, markPerQuestion} = req.body;
+    console.log("questios",questions);
+
     const { courseId } = req.params;
     if (!questions || questions.length === 0) {
         throw "A quiz must have at least one question.";
@@ -24,6 +26,8 @@ export const addQuiz = funcWrapper( async (req, res) => {
 })
 
 export const getQuizes = funcWrapper(async (req, res) => {
+
+   
     let query = {instructor: new Types.ObjectId(req.user.id)};
     const { courseId } = req.params;
     if(courseId){
@@ -31,6 +35,7 @@ export const getQuizes = funcWrapper(async (req, res) => {
     }
     
     const quizes = await quizModel.find(query).sort({ createdAt: -1 }).select("title totalMarks timeLimit questions");
+    console.log("quizes",quizes);
 
     res.status(200).json(new AppResponse(quizes));
 } )
@@ -48,9 +53,9 @@ export const getQuizById = funcWrapper(async (req, res)=>{
 })
 
 
-export const deleteQuiz =funcWrapper( async (req, res) => {
+export const deleteQuiz=funcWrapper( async (req, res) => {
     const { courseId, id } = req.params;
-
+ 
     const quiz = await quizModel.findOneAndDelete({ _id:id, course:courseId, instructor:req.user.id});
     if (!quiz) {
         throw new ErrorResponse(404, "No quiz found");
@@ -62,6 +67,7 @@ export const deleteQuiz =funcWrapper( async (req, res) => {
 export const updateQuiz =funcWrapper(async (req, res) => {
         const { courseId, id } = req.params;
         let {markPerQuestion, ...quizDet} = req.body;
+       
         const updatedQuiz = await quizModel.findOneAndUpdate(
             {_id:id, course:courseId, instructor:req.user.id},
             { $set: quizDet},

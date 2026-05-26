@@ -17,6 +17,7 @@ export const protectedRequestHandler = (allwedRoles = []) => {
             } else if (!result.JTI) {
                 throw new ErrorResponse(400, "JTI not found")
             }
+
             req.jti = result.JTI;
 
             const isBackListed = await Token.findOne({ jti: result.JTI });
@@ -30,7 +31,7 @@ export const protectedRequestHandler = (allwedRoles = []) => {
 
                 next();
             } else {
-                throw "This url is restricted for you.";
+                throw new ErrorResponse(400,"This url is restricted for you")
             }
         } catch (err) {
             next(new ErrorResponse(401, err));

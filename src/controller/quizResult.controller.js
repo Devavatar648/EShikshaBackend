@@ -9,9 +9,11 @@ export const addQuizResult = funcWrapper(async (req, res)=>{
     const {courseId, id} = req.params;
     const studentId = req.user.id;
     const {instructor, ...submittedQuizData} = req.body;
+
     if(!instructor){
         throw "Instructor id is required."
     }
+
     const quizData = await quizModel.findOne({_id:id, instructor:instructor, course:courseId}).select("-_id totalMarks questions");
 
     const obtainMarks = caluculateObtainMarks(quizData.questions, req.body.answers, quizData.totalMarks);
@@ -48,9 +50,12 @@ export const addQuizResult = funcWrapper(async (req, res)=>{
 
 
 const caluculateObtainMarks = (questions, answers, totalMarks)=>{
+    // console.log('questions:',questions)
+    // console.log('answers:',answers)
     let total = 0;
     let marksPerQuestion = totalMarks/questions.length;
     let qdata = questions.map(q=>({id:String(q._id), answer:q.answer}))
+    
     answers.forEach(ans=>{
         let ind = qdata.findIndex(q=>q.id===ans.question);
         if(qdata[ind].answer===ans.answer){

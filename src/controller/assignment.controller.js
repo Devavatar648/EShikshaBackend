@@ -41,7 +41,7 @@ export const deleteAssignment = funcWrapper(async (req, res) => {
     const { courseId, id } = req.params;
     const deleted = await AssignmentModel.findOneAndDelete({ _id: id, course:courseId, instructor: req.user.id });
     if ( ! deleted ) {
-        return new ErrorResponse(404, "assignment not found");
+        throw new ErrorResponse(404, "assignment not found");
     }
     const filecount = await AssignmentModel.countDocuments({ file: deleted.file });
 
@@ -68,7 +68,7 @@ export const updateAssignment = funcWrapper(async (req, res) => {
     );
 
     if (!updated) {
-        return new ErrorResponse(404, "Assignment not found");
+        throw new ErrorResponse(404, "Assignment not found");
     }
     res.status(200).json(new AppResponse(null, "Updated"));
 });

@@ -11,7 +11,7 @@ export const enrollment = funcWrapper(async (req, res) => {
     const courseId = req.params.courseId;
     let enroll = await new Enrollments({ student: req.user.id, course: courseId }).save();
     if (!enroll) {
-        throw new ErrorResponse(400, "Something went wrong");
+        throw new ErrorResponse(400, "Something went wrong during enrollment");
     }
     enroll = await enroll.populate({
         path: "course",
@@ -25,6 +25,7 @@ export const enrollment = funcWrapper(async (req, res) => {
 })
 
 export const showEnrolledCourses = funcWrapper(async (req, res) => {
+   
     let enrolledCourse = await Enrollments.find({ student: req.user.id }).select("course attendedAssignments attendedQuizes").populate({
         path: "course",
         select: "title instructor imageUrl category",
@@ -33,10 +34,11 @@ export const showEnrolledCourses = funcWrapper(async (req, res) => {
             select: "name"
         }
     }).sort({createdAt:-1});
+
     enrolledCourse = await Promise.all(
         enrolledCourse.map(async (ec) => {
             ec = ec.toObject();
-            const total = await getCountCourseAssignmentsAndQuizes(ec.course._id);
+            const total = await getCountCourseAssignmentsAndQuizes(ec.course?._id);
             if(total[0]+total[1]===0){
                 ec['completePercentage'] = 0;
             }else{

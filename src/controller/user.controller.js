@@ -66,6 +66,7 @@ export const getInstructorDashboard = funcWrapper(async (req, res)=>{
             }
         }
     ])
+    //console.log("Courses",courses);
 
     const courseIds = courses.map(c=>c._id);
 
@@ -95,8 +96,11 @@ export const getInstructorDashboard = funcWrapper(async (req, res)=>{
         }
     ])
 
+   // console.log("Students",students);
+
     res.status(200).json(new AppResponse({courses, students}, "Success"));
 })
+
 // student dashboard api
 export const getStudentDashboard = funcWrapper(async (req, res)=>{
     const studentId = req.user.id;
@@ -137,7 +141,8 @@ export const getStudentDashboard = funcWrapper(async (req, res)=>{
                 "course._id":1,
                 "course.title": 1,
                 "course.category":1,
-                totalAttended:{$add:[
+                totalAttended:{
+                    $add:[
                     {$size: "$attendedAssignments"}, 
                     {$size: "$attendedQuizes"}
                 ]},
@@ -155,8 +160,14 @@ export const getStudentDashboard = funcWrapper(async (req, res)=>{
             }
         }
     ])
+    //console.log("Enrolled Courses:\n",enrolledCourses);
 
-    const quizResult = await quizResultModel.find({student:studentId}).select("quiz obtainMarks createdAt").populate("quiz", "-_id totalMarks").populate("course", "-_id title category").sort({obtainMarks:-1});
+    const quizResult = await quizResultModel.find({student:studentId}).select("quiz obtainMarks createdAt")
+    .populate("quiz", "-_id totalMarks")
+    .populate("course", "-_id title category")
+    .sort({obtainMarks:-1});
+
+    //console.log("quizResult object:\n",quizResult);
 
     res.status(200).json(new AppResponse({enrolledCourses, quizResult}, "success"));
 })
