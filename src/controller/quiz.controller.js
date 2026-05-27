@@ -97,6 +97,7 @@ export const getCourseQuizes = async (courseId)=>{
                 $project:{
                     title:1,
                     createdAt:1,
+                    totalMarks:1,
                     totalQuestions:{
                         $size:"$questions"
                     }

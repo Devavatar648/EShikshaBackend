@@ -1,6 +1,6 @@
 import { funcWrapper } from "../util/wraperFunction.js";
 import Course from "../models/course.model.js";
-import validSchema from 'express-validator';
+import validSchema, { Result } from 'express-validator';
 import { Types } from "mongoose";
 import courseModel from "../models/course.model.js";
 import { AppResponse } from "../util/AppResponse.js";
@@ -10,6 +10,8 @@ import { getCourseQuizes } from "./quiz.controller.js";
 import assignmentModel from "../models/assignment.model.js";
 import quizModel from "../models/quiz.model.js";
 import enrollmentModel from "../models/enrollment.model.js";
+import quizResultModel from "../models/quizResult.model.js";
+import assignmentResultModel from "../models/assignmentResult.model.js";
 
 // public
 export const getCourses = funcWrapper(async (req, res) => {
@@ -78,6 +80,28 @@ export const getCourseById = funcWrapper(async (req, res) => {
     ])
     const response = {course, assignments, quizzes, totalEnrollments, isEnrolled};
     res.status(200).json(new AppResponse(response, "Course found"));
+})
+
+export const getCourseAssignmentAndQuizResultOfStudent = funcWrapper(async (req, res)=>{
+    const studentId=req.user.id;
+    const {courseId}=req.params;
+    
+    const AllResult= await Promise.all([
+        quizResultModel.find({course:courseId,student:studentId}).select('-_id quiz obtainMarks timeTaken'),
+        assignmentResultModel.find({course:courseId,student:studentId}).select('-_id assignment marks')
+    ]);
+
+    const quizResultObj = {};
+    AllResult[0].forEach(q=>{
+        quizResultObj[q.quiz]=[q.obtainMarks, q.timeTaken];
+    })
+
+    const assignmentResultObj={};
+    AllResult[1].forEach(a=>{
+        assignmentResultObj[a.assignment]=a.marks;
+    })
+     
+    res.status(200).json(new AppResponse({quizResults:quizResultObj, assignmentResults:assignmentResultObj}));
 })
 
 
