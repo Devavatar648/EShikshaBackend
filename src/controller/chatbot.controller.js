@@ -1,6 +1,6 @@
+import { GoogleGenAI } from '@google/genai';
 import { AppResponse } from "../util/AppResponse.js";
 import { funcWrapper } from "../util/wraperFunction.js";
-import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({});
 
