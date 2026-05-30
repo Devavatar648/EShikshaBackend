@@ -1,9 +1,8 @@
-import Enrollments from '../models/enrollment.model.js';
+import { Types } from 'mongoose';
 import quizModel from '../models/quiz.model.js';
 import { AppResponse } from '../util/AppResponse.js';
 import { ErrorResponse } from '../util/ErrorResponse.js';
 import { funcWrapper } from '../util/wraperFunction.js';
-import { Types } from 'mongoose';
 
 
 export const addQuiz = funcWrapper( async (req, res) => {
@@ -12,7 +11,7 @@ export const addQuiz = funcWrapper( async (req, res) => {
 
     const { courseId } = req.params;
     if (!questions || questions.length === 0) {
-        throw "A quiz must have at least one question.";
+        throw new Error("A quiz must have at least one question.");
     }
 
     req.body.course=courseId;
@@ -43,7 +42,7 @@ export const getQuizes = funcWrapper(async (req, res) => {
 export const getQuizById = funcWrapper(async (req, res)=>{
     const {courseId, id} = req.params;
     if(!courseId || !id){
-        throw "Invalid path";
+        throw new Error("Invalid path");
     }
     const quiz = await quizModel.findOne({course:courseId, _id:id}).populate("course", "title").populate("instructor", "name");
     if(!quiz){
@@ -103,6 +102,7 @@ export const getCourseQuizes = async (courseId)=>{
                 $project:{
                     title:1,
                     createdAt:1,
+                    totalMarks:1,
                     totalQuestions:{
                         $size:"$questions"
                     }

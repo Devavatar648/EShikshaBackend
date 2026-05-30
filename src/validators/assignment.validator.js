@@ -24,20 +24,14 @@ export const assignmentValidators = [
         }
         return true;
     }),
-    
-    // body('myFile')
-    //     .custom((_, { req }) => {
-    //         if (!req.file) {
-    //             throw new Error("File is required");
-    //         }
-    //         if (req.file.mimetype !== 'application/pdf') {
-    //             throw new Error("Only PDF files are allowed");
-    //         }
-    //         return true;
-    //     })
-
-    // body('file')
-    //     .notEmpty().withMessage("File is rquired")
-    //     .isMongoId().withMessage('FileId must be a valid Mongo ObjectId if provided')
-
+    body('myFile')
+        .custom((_, { req }) => {
+            if (!req.file) {
+                throw new Error("File is required");
+            }
+            if (req.file.mimetype !== 'application/pdf') {
+                throw new Error("Only PDF files are allowed");
+            }
+            return true;
+        })
 ]

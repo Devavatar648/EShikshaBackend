@@ -1,7 +1,7 @@
-import FileModel from '../models/file.model.js';
 import crypto from 'crypto';
-import { funcWrapper } from '../util/wraperFunction.js';
+import FileModel from '../models/file.model.js';
 import { ErrorResponse } from '../util/ErrorResponse.js';
+import { funcWrapper } from '../util/wraperFunction.js';
 
 export const downloadAssignmentFile = funcWrapper( async (req, res) => {
     
