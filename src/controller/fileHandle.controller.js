@@ -3,10 +3,6 @@ import crypto from 'crypto';
 import { funcWrapper } from '../util/wraperFunction.js';
 import { ErrorResponse } from '../util/ErrorResponse.js';
 
-const getHash = (buffer) => {
-    return crypto.createHash('sha256').update(buffer).digest('hex');
-}
-
 export const downloadAssignmentFile = funcWrapper( async (req, res) => {
     
     const id = req.params.id;
@@ -24,7 +20,9 @@ export const downloadAssignmentFile = funcWrapper( async (req, res) => {
     res.send(file.fileData);
 })
 
-
+const getHash = (buffer) => {
+    return crypto.createHash('sha256').update(buffer).digest('hex');
+}
 export const uploadAssignmentFile = async ( req ) => {
     if (req.file) {
         

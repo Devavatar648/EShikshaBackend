@@ -12,6 +12,7 @@ export const publishAnnocement=funcWrapper(async(req,res)=>{
     if(!annocement){
         throw "internal server error";
     }
+
     res.status(201).json(new AppResponse({message:annocement.message, course:annocement.course, createdAt:annocement.createdAt},"annocement created"));
 })
 

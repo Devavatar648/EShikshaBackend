@@ -23,8 +23,7 @@ app.use(cors({
 // app configuration
 app.use( express.json() );
 app.use( express.urlencoded( { extended:true } ) );
-//app.use( cors( { origin: process.env.ORIGIN_URL } ) );
-// app.use(cors({ origin: '*' }));
+
 
 
 // public api endpoints

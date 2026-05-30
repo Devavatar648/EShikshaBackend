@@ -131,6 +131,8 @@ export const getDashboard = funcWrapper(async (req, res)=>{
         ]),
         courseModel.countDocuments({})
     ])
+
+    //console.log(data);
     res.status(200).json(new AppResponse({userDetails:{totalUser:data[0], monthlyEnrollments:data[1]}, courseDetails:{topCourses:data[2], totalCourses:data[3]}}));
 })
 

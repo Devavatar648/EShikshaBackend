@@ -15,7 +15,7 @@ const router = express.Router();
 const storage = multer.memoryStorage();
 const uploading = multer({
     storage,
-    limits: { fileSize: 10 * 1024 * 1024 } // 10mb limit
+    limits: { fileSize: 10 * 1024 * 1024 } 
 });
 
 router.route("/dashboard")
@@ -42,19 +42,19 @@ router.route("/course/:courseId/report")
     .get( getStudentsCourseProgress )
 
 
-// Decoupled from the parent composite route to target the submission directly by its individual ID
+
 router.route("/course/:courseId/assignment-result/:resultId")
-    .patch(giveMarks)                                // Instructor updates marks
+    .patch(giveMarks)                                
 
 
 router.route("/course/:courseId/assignment/:assignmentId/result")   
     .get(searchResults);
 
-//downloading
+
 router.route("/course/:courseId/assignment/download/:id").get(downloadAssignmentFile);
 
 
-//quizes
+
 router.route("/course/:courseId/quiz")
     .post(addQuiz)
     .get(getQuizes)

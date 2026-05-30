@@ -136,6 +136,8 @@ export const getStudentsCourseProgress = funcWrapper(async(req, res)=>{
         getCountCourseAssignmentsAndQuizes(courseId),
     ])
 
+    
+
     const response = {
         students:data[0].map(s=>({
             completedModule: s.attendedAssignments.length+s.attendedQuizes.length,
@@ -144,6 +146,7 @@ export const getStudentsCourseProgress = funcWrapper(async(req, res)=>{
         })),
         totalModules: data[1].reduce((a,b)=>a+b)
     }
+    
     res.status(200).json(new AppResponse(response, "success"));
 })
 
@@ -155,6 +158,7 @@ export const getCountCourseAssignmentsAndQuizes = async (courseId)=>{
             quizModel.countDocuments({course:courseId})
         ])
         return response;
+
     }catch(err){
         throw err;
     }

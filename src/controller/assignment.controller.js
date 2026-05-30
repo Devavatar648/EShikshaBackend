@@ -9,8 +9,7 @@ import { validationResult } from 'express-validator';
 
 
 export const addAssignment = funcWrapper(async (req, res) => {
-    // Validation for Multer: check if file exists
-
+    
     const errors = validationResult(req);
    
     if(!errors.isEmpty()){
